@@ -1,0 +1,22 @@
+<!-- post_list.html -->
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  <h1>Latest Posts</h1>
+  <ul>
+    {% for post in posts %}
+      <li>
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.content|truncatewords:20 }}</p>TAGS:<ul>
+          {% for tag in post.tags %}
+            <li>
+              <a href="{% url 'tag_posts' tag %}">{{ tag }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% empty %}
+      <li>No posts available.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

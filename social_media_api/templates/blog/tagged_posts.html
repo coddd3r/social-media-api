@@ -1,0 +1,12 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  <h1>Posts tagged with {{ tag }}</h1>
+  <ul>
+    {% for post in posts %}
+      <li>{{ post.title }} ({{ post.tags.names()|join:', ' }})</li>
+    {% empty %}
+      <li>No posts found for this tag.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

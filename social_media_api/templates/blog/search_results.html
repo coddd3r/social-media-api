@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  <h1>Search Results</h1>
+  <ul>
+    {% for result in results %}
+      <li>
+        <a href="{% url 'blog_detail' result.pk %}">{{ result.title }}</a>
+        <p>{{ result.content|truncatewords:20 }}</p>
+      </li>
+    {% empty %}
+      <li>No results found.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

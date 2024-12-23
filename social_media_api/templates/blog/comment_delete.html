@@ -1,0 +1,11 @@
+<!-- delete_comment.html -->
+{% extends 'blog/base.html' %}
+
+{% block content %}
+  <form action="{% url 'comments-delete' %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="comment_id" value="{{ comment.id }}" />
+    <input type="hidden" name="post_id" value="{{ post.id }}" />
+    <button>Delete</button>
+  </form>
+{% endblock %}
