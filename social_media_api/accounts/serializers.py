@@ -8,13 +8,14 @@ from .models import CustomUser, UserProfile
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    profile_pucture = serializers.ImageField()
+    # profile_picture = serializers.ImageField()
     followers = serializers.SerializerMethodField()
     following = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'bio', 'profile_picture', 'password']
+        fields = ['username', 'email', 'bio',
+                  'password', 'followers', 'following']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -24,6 +25,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user = get_user_model().objects.create_user(**validated_data)
         token, created = Token.objects.create(user=user)
         return {'user': user, 'token': token.key}
+
+    def get_followers(self):
+        return self
 
 
 class LoginSerializer(serializers.Serializer):
@@ -42,6 +46,8 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer()
+
     class Meta:
         model = UserProfile
-        fields = ['email', 'profile_picture']
+        fields = ['user', 'profile_picture']

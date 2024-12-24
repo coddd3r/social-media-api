@@ -1,0 +1,41 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+  <h2>{{ profile.user.username }}'s Profile</h2>
+  <a href = {% url 'follow_user' profile.user.id %}> FOLLOW </a>
+  <div><img src="{{ profile.profile_picture}}" alt="Profile Picture"></div>
+  <p>Bio: {{ profile.bio }}</p>
+
+<!-- Followers -->
+<h2>Followers ({{ followers|length }})</h2>
+<ul>
+  {% for follower in followers%}
+  <li>{{ follower.username }}</li>
+  {%empty%}
+  NO followers
+  {% endfor %}``
+</ul>
+
+<!-- Following -->
+<h2>Following ({{ following|length}})</h2>
+<ul>
+  {% for followed in following%}
+  <li>{{ followed.username }}</li>
+  {%empty%}
+  NO following
+  {% endfor %}
+</ul>
+
+<!-- Posts -->
+<h2>Posts ({{ posts|length }})</h2>
+<ul>
+  {% for post in posts%}
+  <li>{{ post.content}} ({{ post.created_at }})</li>
+  {%empty%}
+  NO posts
+  {% endfor %}
+</ul>
+
+{% if user.is_authenticated %}
+  {%endif%}
+{% endblock %}

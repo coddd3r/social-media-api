@@ -1,0 +1,13 @@
+<!-- profile.html -->
+
+{% extends "accounts/base.html" %}
+
+{% block content %}
+    <h1>Profile</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ user_form.as_p }}
+        {{ profile_form.as_p }}
+        <button type="submit">Update Profile</button>
+    </form>
+{% endblock content %}

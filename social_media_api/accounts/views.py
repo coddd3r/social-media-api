@@ -1,37 +1,24 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse, request
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import DetailView
 
-from rest_framework.decorators import permission_classes
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.decorators import api_view
-# from rest_framework.generics import GenericAPIView
-from rest_framework import generics
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 # Create your views here.
-from .forms import RegisterForm
-from .serializers import CustomUserSerializer, LoginSerializer, UserProfileSerializer
+from .forms import RegisterForm, UpdateUserForm, UpdateProfileForm
+from .serializers import LoginSerializer, UserProfileSerializer
 from .models import CustomUser, UserProfile
-
-
-# @api_view(['POST'])
-# def register(request):
-#    if request.method == 'POST':
-#        serializer = CustomUserSerializer(data=request.data)
-#        if serializer.is_valid():
-#            serializer.save()
-#            return Response(serializer.data, status=status.HTTP_201_CREATED)
-#        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @api_view(['POST'])
+from posts.models import Post
 
 
 def register(request):
@@ -60,12 +47,12 @@ def user_login(request):
 
 
 class CustomAuthToken(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         serializer = self.serializer_class(
             data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
+        token, _ = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
             'user_id': user.pk,
@@ -73,41 +60,43 @@ class CustomAuthToken(ObtainAuthToken):
         })
 
 
-# class UserProfileUpdateView(APIView):
-# class UserProfileUpdateView(generics.GenericAPIView):
-#    def put(self, request, pk):
-#        user_profile = UserProfile.objects.get(pk=pk)
-#        serializer = UserProfileSerializer(
-#            user_profile, data=request.data, partial=True)
-#        if serializer.is_valid():
-#            serializer.save()
-#            return Response(serializer.data)
-#        return Response(serializer.errors, status=400)
-class UserProfileView(APIView):
-    def get(self, request, pk):
-        profile = UserProfile.objects.get(pk=pk)
-        serializer = UserProfileSerializer(profile)
-        return Response(serializer.data)
+# class UserProfileView(DetailView):
+#    model = UserProfile
+#    template = 'accounts/profile.html'
 
-    def post(self, request):
-        serializer = UserProfileSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+def profile_view(request, user_id):
+    profile_instance = UserProfile.objects.get(id=user_id)
+    user = CustomUser.objects.get(id=user_id)
+    context = {}
+    context['profile'] = profile_instance
+    context['followers'] = user.followers.all()
+    context['following'] = user.following.all()
+    context['posts'] = Post.objects.get(user=user)
+    return render(request, "accounts/profile_view.html", context)
 
-    def put(self, request, pk):
-        profile = UserProfile.objects.get(pk=pk)
-        serializer = UserProfileSerializer(profile, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors)
 
-    def delete(self, request, pk):
-        profile = UserProfile.objects.get(pk=pk)
-        profile.delete()
-        return Response(status=204)
+@login_required
+def profile_update_view(request, user_id):
+    if request.user.id != user_id:
+        return HttpResponse(status=403, content='Forbidden')
+
+    user_instance = CustomUser.objects.get(id=user_id)
+    profile_instance = UserProfile.objects.get(id=user_id)
+
+    if request.method == 'POST':
+        user_form = UpdateUserForm(request.POST, instance=user_instance)
+        profile_form = UpdateProfileForm(
+            request.POST, request.FILES, instance=profile_instance)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            return redirect(to='profile')
+    else:
+        user_form = UpdateUserForm(instance=user_instance)
+        profile_form = UpdateProfileForm(instance=profile_instance)
+
+    return render(request, 'accounts/profile_update.html', {'user_form': user_form, 'profile_form': profile_form})
 
 
 @api_view(['POST'])

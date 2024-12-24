@@ -9,9 +9,11 @@ from django.dispatch import receiver
 class CustomUser(AbstractUser):
     # bio = models.TextField(max_length=200)
     bio = models.TextField()
-    profile_picture = models.ImageField()
-    followers = models.ManyToManyField('self', symmetrical=False, related_name='follower_users')
-    following = models.ManyToManyField('self', symmetrical=False, related_name='following_users')
+    # profile_picture = models.ImageField()
+    followers = models.ManyToManyField(
+        'self', symmetrical=False, related_name='follower_users')
+    following = models.ManyToManyField(
+        'self', symmetrical=False, related_name='following_users')
 
     email = models.EmailField(unique=True)
 
@@ -21,8 +23,10 @@ class UserProfile(models.Model):
         CustomUser, on_delete=models.CASCADE, related_name='profile')
     # first_name = models.CharField(max_length=50)
     # last_name = models.CharField(max_length=50)
-    email = models.EmailField()
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+#    email = models.EmailField()
+    profile_picture = models.ImageField(
+        default='default.jpg', upload_to='profile_pics')
+    bio = models.TextField(max_length=300, null=True)
 
     def __str__(self):
         return f'{self.user.username} Profile'
