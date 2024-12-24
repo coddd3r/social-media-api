@@ -1,4 +1,4 @@
-{% extends 'blog/base.html' %}
+{% extends 'posts/base.html' %}
 
 {% block title %}
   {{ post.title }}
@@ -8,49 +8,15 @@
   <h1>{{ post.title }}</h1>
 
   <p class="date">Published {{ post.published_date }} by {{ post.author }}</p>
-  {{ post.content|linebreaks }}
+  <p class="date"> Lates version {{post.updated_at}}</p>
+  CONTENT:{{ post.content|linebreaks }}
+  {%if user.is_authenticated and user.id == post.author.id %}
+    <a href="{% url 'delete_post' post.id %}">DELETE post </a>
+  {%endif%}
   {% for tag in post.tags %}
     <li>
       <a href="{% url 'tag_posts' tag %}">{{ tag }}</a>
     </li>
   {% endfor %}
 
-  {% comment %} <p>
-    <a href="{% url 'blog:post_share' post.id %}">Share this post</a>
-  </p> {% endcomment %}
-
-  {% comment %} <h2>Similar posts</h2>
-  {% for post in similar_posts %}
-    <p>
-      <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-    </p>
-  {% empty %}
-    There are no similar posts yet.
-  {% endfor %} {% endcomment %}
-
-  {% comment %} {% with total_comments=comments.count %}
-    <h2>{{ total_comments }} comment{{ total_comments|pluralize }}</h2>
-  {% endwith %}
-  {% for comment in comments %}
-    <div class="comment">
-      <p class="info">Comment {{ forloop.counter }} by {{ comment.name }}
-        {{ comment.created }}</p>
-      {{ comment.body|linebreaks }}
-    </div>
-  {% empty %}
-    <p>There are no comments yet.</p>
-  {% endfor %}
-
-  {% if new_comment %}
-    <h2>Your comment has been added.</h2>
-  {% else %}
-    <h2>Add a new comment</h2>
-    <form action="." method="post">
-      {{ comment_form.as_p }}
-      {% csrf_token %}
-      <p>
-        <input type="submit" value="Add comment" />
-      </p>
-    </form>
-  {% endif %} {% endcomment %}
 {% endblock %}

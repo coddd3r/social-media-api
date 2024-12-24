@@ -1,18 +1,18 @@
+from http.client import HTTPResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.dispatch import receiver
 from django.db.models import Q
 from django.db.models.signals import post_save
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.generic import DeleteView, ListView, CreateView, UpdateView, DetailView
 
 
 from rest_framework import filters
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -69,12 +69,30 @@ class PostDetailView(DetailView):
     template_name = 'posts/post_detail.html'
 
 
-class PostDeleteView(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
+class PostDeleteView(DeleteView):
+    template_name = 'posts/post_delete.html'
+    success_url = reverse_lazy('posts')
+    model = Post
+
+    def dispatch(self, request, pk):
+        if request.method == 'POST':
+            # Delete the object if confirmed
+            post = Post.objects.get(id=pk)
+            if post.author == request.user:
+                post.delete()
+                return redirect(self.success_url)
+            else:
+                raise PermissionDenied()
+        else:
+            return render(request, self.template_name, {'object': self.get_object()})
+
+
+class PostDeleteViewOld(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
     def delete(self, request, pk):
-        post = self.get_object()
+        post = Post.objects.get(id=pk)
         if post.author == request.user:
             post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -19,12 +19,14 @@ from .forms import RegisterForm, UpdateUserForm, UpdateProfileForm
 from .serializers import LoginSerializer, UserProfileSerializer
 from .models import CustomUser, UserProfile
 from posts.models import Post
+from posts.serializers import PostSerializer
 
 
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
+            print("valid form for register")
             form.save()
             return redirect('login')
     else:
@@ -71,7 +73,8 @@ def profile_view(request, user_id):
     context['profile'] = profile_instance
     context['followers'] = user.followers.all()
     context['following'] = user.following.all()
-    context['posts'] = Post.objects.get(user=user)
+    context['posts'] = list(Post.objects.filter(author=user))
+    # context['posts'] = PostSerializer(Post.objects.filter(author=user))
     return render(request, "accounts/profile_view.html", context)
 
 

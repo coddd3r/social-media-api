@@ -31,6 +31,7 @@
 <ul>
   {% for post in posts%}
   <li>{{ post.content}} ({{ post.created_at }})</li>
+  <a href={% url 'update_post' post.id %}>Edit post</a>
   {%empty%}
   NO posts
   {% endfor %}
