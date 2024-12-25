@@ -7,6 +7,7 @@ urlpatterns = [
     path('register/', register, name='register'),
     # path('login/', user_login, name='login'),
     path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/<int:user_id>/', profile_view, name='profile'),
     path('token/', CustomAuthToken.as_view(), name='token'),
     path('follow/<int:user_id>/', follow_user, name='follow_user'),

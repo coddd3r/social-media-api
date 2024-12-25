@@ -17,12 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from posts.views import PostListView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path("posts/", include("posts.urls")),
-    # path('', PostListView.as_view({'get': 'list'})),
     # path('', PostListView.as_view()),
+    path('', include('accounts.urls')),
     path('', include('posts.urls')),
 ]
