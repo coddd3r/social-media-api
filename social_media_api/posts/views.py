@@ -184,14 +184,27 @@ class FeedView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        following_users = self.request.user.followers.all()
-        return Post.objects.filter(author__in=following_users).order_by('-creation_date')
+        following_users = self.request.user.following.all()
+        print("user", self.request.user.id, "follows:", following_users)
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
 
     # (self, request):
     #     posts = Post.objects.filter(author__in=request.user.following.all())
     #     return
 
 # class LikePostView(GenericAPIView, CreateModelMixin):
+
+
+def feed_view(request):
+    following_users = request.user.following.all()
+    posts = Post.objects.filter(
+        author__in=following_users).order_by('-created_at')
+    posts = PostSerializer(posts, many=True).data
+
+    context = {}
+    context['posts'] = posts
+    context['user'] = request.user
+    return render(request, 'posts/post_feed.html', context)
 
 
 class LikePostView(generics.CreateAPIView):

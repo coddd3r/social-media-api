@@ -7,6 +7,12 @@ from rest_framework import serializers
 from .models import CustomUser, UserProfile
 
 
+class BaseUserSmallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username']
+
+
 class CustomUserSerializer(serializers.ModelSerializer):
     # profile_picture = serializers.ImageField()
     followers = serializers.SerializerMethodField()
@@ -26,8 +32,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
         token, created = Token.objects.create(user=user)
         return {'user': user, 'token': token.key}
 
-    def get_followers(self):
-        return self
+    def get_followers(self, obj):
+        followers_queryset = obj.followers.all()
+        return BaseUserSmallSerializer(followers_queryset, many=True).data
+
+    def get_following(self, obj):
+        followers_queryset = obj.following.all()
+        return BaseUserSmallSerializer(followers_queryset, many=True).data
 
 
 class LoginSerializer(serializers.Serializer):

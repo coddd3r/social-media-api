@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <h2>{{ profile.user.username }}'s Profile</h2>
-    {% if user.is_authenticated and not already_followed %}
+    {% if user.is_authenticated and not already_followed  and user.id != profile.user.id %}
         <form method="post" action="{% url 'follow_user' profile.user.id %}">
             {% csrf_token %}
             <button class="btn btn-outline-success" type=submit>FOLLOW</button>
