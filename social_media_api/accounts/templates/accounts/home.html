@@ -1,11 +1,10 @@
-{% extends 'blog/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
-
 {% block content %}
-  <h1>posts in Social media site:</h1>
-  <ul>
-    {% for post in posts %}
-      <li>{{ post.title }} by {{ post.author.name }} (Published {{ post.publication_date }})</li>
-    {% endfor %}
-  </ul>
+    <h1>posts in Social media site:</h1>
+    <ul>
+        {% for post in posts %}
+            <li>{{ post.title }} by {{ post.author.name }} (Published {{ post.publication_date }})</li>
+        {% endfor %}
+    </ul>
 {% endblock %}

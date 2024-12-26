@@ -21,9 +21,6 @@
                         <a href="{% url 'posts' %}">Posts</a>
                     </li>
                     <li>
-                        <a href="{% url 'login' %}">Login</a>
-                    </li>
-                    <li>
                         <a href="{% url 'register' %}">Register</a>
                     </li>
                     {% if user.is_authenticated %}
@@ -32,6 +29,12 @@
                                 {% csrf_token %}
                                 <button type="submit">Log Out</button>
                             </form>
+                        </li>
+                    {% else %}
+                        <li>
+                            <button>
+                                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                            </button>
                         </li>
                     {% endif %}
                 </ul>
