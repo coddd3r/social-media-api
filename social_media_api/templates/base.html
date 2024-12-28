@@ -28,6 +28,7 @@
                             <button type="submit">Search</button>
                         </form>
                     </li>
+                    <li></li>
                     {% if user.is_authenticated %}
                         <li>
                             <form method="post" action="{% url 'logout' %}">
@@ -54,6 +55,15 @@
                 {{ user.username }}
             </h1>
         {% endif %}
+        <p>Search for posts by time range</p>
+        <form method="post" action={% url 'range_search' %}>
+            {% csrf_token %}
+            <label for="start_date">Start Date:</label>
+            <input type="datetime" id="start_date" name="start_date">
+            <label for="end_date">End Date:</label>
+            <input type="datetime" id="end_date" name="end_date">
+            <button type="submit">Search</button>
+        </form>
         <div class="content">
             {% block content %}<!-- Page-specific content goes here -->{% endblock %}
         </div>

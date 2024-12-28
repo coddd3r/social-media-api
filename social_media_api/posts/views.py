@@ -1,3 +1,4 @@
+from .forms import DateForm
 from http.client import HTTPResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -103,6 +104,26 @@ class PostSearchView(generics.ListAPIView):
         # combined_q = title_q & content_q
         results = Post.objects.filter(content_q | title_q)
         return results
+
+
+# def range_search_view(request):
+#    if request.method == 'POST':
+#        start_date = request.POST.get('start_date')
+#        end_date = request.POST.get('end_date')
+#        objects = Post.objects.filter(
+#            created_at__range=(start_date, end_date))
+#        return render(request, 'posts/search_results.html', {'results': objects})
+#    else:
+#        raise PermissionDenied()
+
+
+def range_search_view(request):
+    if request.method == 'POST':
+        form = DateForm(request.POST)
+        return render(request, 'posts/search_results.html', {'date_form': form})
+
+    else:
+        raise PermissionDenied()
 
 
 class CommentPagination(PageNumberPagination):
