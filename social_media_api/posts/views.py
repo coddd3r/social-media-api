@@ -49,19 +49,24 @@ class PostCreateView(CreateView, LoginRequiredMixin):
     model = Post
     form_class = PostForm
     template_name = 'posts/post_create.html'
-    success_url = reverse_lazy('posts')
 
     def form_valid(self, form):
-        author = CustomUser.objects.get(id=self.request.user.id)
+        author = CustomUser.objects.get(id=self.request.user.pk)
+        # author = CustomUser.objects.get(id=self.request.user.id)
         form.instance.author = author
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('post_detail', kwargs={"pk": self.object.id})
 
 
 class PostUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
     model = Post
     form_class = PostForm
     template_name = 'posts/post_create.html'
-    success_url = reverse_lazy('posts')
+
+    def get_success_url(self):
+        return reverse_lazy('post_detail', kwargs={"pk": self.object.id})
 
 
 class PostDetailView(DetailView):
@@ -69,7 +74,7 @@ class PostDetailView(DetailView):
     template_name = 'posts/post_detail.html'
 
 
-class PostDeleteView(DeleteView):
+class PostDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
     template_name = 'posts/post_delete.html'
     success_url = reverse_lazy('posts')
     model = Post
@@ -84,22 +89,10 @@ class PostDeleteView(DeleteView):
             else:
                 raise PermissionDenied()
         else:
-            return render(request, self.template_name, {'object': self.get_object()})
-
-
-class PostDeleteViewOld(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-    def delete(self, request, pk):
-        post = Post.objects.get(id=pk)
-        if post.author == request.user:
-            post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            return render(request, self.template_name, {'object': PostSerializer(self.get_object())})
 
 
 class PostSearchView(generics.ListAPIView):
-
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
@@ -108,7 +101,7 @@ class PostSearchView(generics.ListAPIView):
         title_q = Q(title__icontains=search_term) if search_term else Q()
         content_q = Q(content__icontains=search_term) if search_term else Q()
         # combined_q = title_q & content_q
-        results = Post.objects.filter(title_q).filter(content_q)
+        results = Post.objects.filter(content_q | title_q)
         return results
 
 
@@ -122,7 +115,7 @@ class CommentListView(generics.ListAPIView):
     pagination_class = CommentPagination
     filter_backends = [filters.SearchFilter]
 
-    def get(self, request, **kwargs):
+    def get(self, request):
         pk = self.kwargs['pk']
         post = Post.objects.get(id=pk)
         comments = Comment.objects.filter(post=post)
@@ -148,7 +141,7 @@ class CommentUpdateView(APIView, LoginRequiredMixin, UserPassesTestMixin):
         serializer = CommentSerializer(data=request.data, partial=True)
         if serializer.is_valid():
             comment = Comment.objects.get(id=request.data['pk'])
-            if self.user != request.user:
+            if request.user != request.user:
                 raise PermissionDenied(
                     'Only the author can edit or delete this post')
             if comment.author == request.user:

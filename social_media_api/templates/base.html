@@ -22,6 +22,12 @@
                     <li>
                         <a href="{% url 'feed' %}">Personal Feed</a>
                     </li>
+                    <li>
+                        <form action="{% url 'search_post' %}" method="get">
+                            <input type="text" name="search_term" placeholder="Search...">
+                            <button type="submit">Search</button>
+                        </form>
+                    </li>
                     {% if user.is_authenticated %}
                         <li>
                             <form method="post" action="{% url 'logout' %}">
