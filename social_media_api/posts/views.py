@@ -106,107 +106,47 @@ class PostSearchView(generics.ListAPIView):
         return results
 
 
-# def range_search_view(request):
-#    if request.method == 'POST':
-#        start_date = request.POST.get('start_date')
-#        end_date = request.POST.get('end_date')
-#        objects = Post.objects.filter(
-#            created_at__range=(start_date, end_date))
-#        return render(request, 'posts/search_results.html', {'results': objects})
-#    else:
-#        raise PermissionDenied()
+class PostSearch(ListView):
+    queryset = Post.objects.all()
+    template_name = 'posts/search_results.html'
+    context_object_name = 'results'
+
+    def get_queryset(self):
+        search_term = self.request.GET.get('search_term')
+        title_q = Q(title__icontains=search_term) if search_term else Q()
+        content_q = Q(content__icontains=search_term) if search_term else Q()
+        # combined_q = title_q & content_q
+        results = Post.objects.filter(content_q | title_q)
+        return results
+
+
+def post_search(request):
+    if request.method == "GET":
+        search_term = request.GET.get('search_term')
+        title_q = Q(title__icontains=search_term) if search_term else Q()
+        content_q = Q(content__icontains=search_term) if search_term else Q()
+        # combined_q = title_q & content_q
+        results = Post.objects.filter(content_q | title_q)
+        prompt = f"Post with the term:'{search_term}'"
+        return render(request, 'posts/search_results.html', {'results': results, 'search_prompt': prompt})
 
 
 def range_search_view(request):
     if request.method == 'POST':
         form = DateForm(request.POST)
-        return render(request, 'posts/search_results.html', {'date_form': form})
-
+        objects = []
+        if form.is_valid():
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            objects = Post.objects.filter(
+                created_at__range=(start_date, end_date))
+            time_range = f"posts for time range{start_date} to {end_date}"
+            return render(request, 'posts/search_results.html', {'results': objects, 'search_prompt': time_range})
+        else:
+            return render(request, 'posts/date_search.html', {'form': form})
     else:
-        raise PermissionDenied()
-
-
-class CommentPagination(PageNumberPagination):
-    page_size = 20  # Adjust the page size as needed
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-
-class CommentListView(generics.ListAPIView):
-    pagination_class = CommentPagination
-    filter_backends = [filters.SearchFilter]
-
-    def get(self, request):
-        pk = self.kwargs['pk']
-        post = Post.objects.get(id=pk)
-        comments = Comment.objects.filter(post=post)
-        paginated_comments = CommentPagination().paginate_queryset(
-            queryset=comments, request=request)
-        serializer = CommentSerializer(paginated_comments, many=True)
-        return Response(serializer.data)
-
-
-class CommentCreateView(APIView, LoginRequiredMixin, UserPassesTestMixin):
-    serializer_class = CommentSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CommentUpdateView(APIView, LoginRequiredMixin, UserPassesTestMixin):
-    def post(self, request):
-        serializer = CommentSerializer(data=request.data, partial=True)
-        if serializer.is_valid():
-            comment = Comment.objects.get(id=request.data['pk'])
-            if request.user != request.user:
-                raise PermissionDenied(
-                    'Only the author can edit or delete this post')
-            if comment.author == request.user:
-                serializer.update(Comment, serializer.validated_data)
-                return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-
-
-class CommentDetailView(APIView):
-    def get(self, request):
-        # Handle GET request
-        comment = Comment.objects.get(id=request.data['id'])
-        serializer = CommentSerializer(comment)
-        return Response(serializer.data)
-
-
-class CommentDeleteView(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-
-    def delete(self, request, pk):
-        comment = self.get_object(pk)
-        if request.user == comment.user:
-            comment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-# class FeedView(generics.ListAPIView, LoginRequiredMixin, UserPassesTestMixin):
-class FeedView(generics.ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        following_users = self.request.user.following.all()
-        print("user", self.request.user.id, "follows:", following_users)
-        return Post.objects.filter(author__in=following_users).order_by('-created_at')
-
-    # (self, request):
-    #     posts = Post.objects.filter(author__in=request.user.following.all())
-    #     return
-
-# class LikePostView(GenericAPIView, CreateModelMixin):
+        form = DateForm()
+        return render(request, 'posts/date_search.html', {'form': form})
 
 
 def feed_view(request):
@@ -293,3 +233,71 @@ class UnlikePostView(generics.DestroyAPIView):
 #     pass
 
 # "generics.get_object_or_404(Post, pk=pk)", "Like.objects.get_or_create(user=request.user, post=post)
+
+
+##
+# COMMENTS
+##
+class CommentPagination(PageNumberPagination):
+    page_size = 20  # Adjust the page size as needed
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+class CommentListView(generics.ListAPIView):
+    pagination_class = CommentPagination
+    filter_backends = [filters.SearchFilter]
+
+    def get(self, request):
+        pk = self.kwargs['pk']
+        post = Post.objects.get(id=pk)
+        comments = Comment.objects.filter(post=post)
+        paginated_comments = CommentPagination().paginate_queryset(
+            queryset=comments, request=request)
+        serializer = CommentSerializer(paginated_comments, many=True)
+        return Response(serializer.data)
+
+
+class CommentCreateView(APIView, LoginRequiredMixin, UserPassesTestMixin):
+    serializer_class = CommentSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentUpdateView(APIView, LoginRequiredMixin, UserPassesTestMixin):
+    def post(self, request):
+        serializer = CommentSerializer(data=request.data, partial=True)
+        if serializer.is_valid():
+            comment = Comment.objects.get(id=request.data['pk'])
+            if request.user != request.user:
+                raise PermissionDenied(
+                    'Only the author can edit or delete this post')
+            if comment.author == request.user:
+                serializer.update(Comment, serializer.validated_data)
+                return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+
+class CommentDetailView(APIView):
+    def get(self, request):
+        # Handle GET request
+        comment = Comment.objects.get(id=request.data['id'])
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+
+
+class CommentDeleteView(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def delete(self, request, pk):
+        comment = self.get_object(pk)
+        if request.user == comment.user:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

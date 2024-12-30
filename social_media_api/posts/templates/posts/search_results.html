@@ -1,15 +1,20 @@
-{% extends 'blog/base.html' %}
-
+{% extends 'base.html' %}
 {% block content %}
-  <h1>Search Results</h1>
-  <ul>
-    {% for result in results %}
-      <li>
-        <a href="{% url 'blog_detail' result.pk %}">{{ result.title }}</a>
-        <p>{{ result.content|truncatewords:20 }}</p>
-      </li>
-    {% empty %}
-      <li>No results found.</li>
-    {% endfor %}
-  </ul>
+    <h1>Search Results</h1>
+    <ul>
+        <h2>Search results for: {{ search_prompt }}</h2>
+        {% for result in results %}
+            <li>
+                <a href="{% url 'post_detail' result.pk %}">{{ result.title }}</a>
+                <div>
+                    <p>
+                        <strong>content:</strong>{{ result.content|truncatewords:20 }}
+                    </p>
+                </div>
+                <p>created at {{ result.created_at }}</p>
+            </li>
+        {% empty %}
+            <li>No results found.</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
