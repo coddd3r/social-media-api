@@ -2,6 +2,7 @@ from .forms import DateForm
 from http.client import HTTPResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from django.dispatch import receiver
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -106,20 +107,6 @@ class PostSearchView(generics.ListAPIView):
         return results
 
 
-class PostSearch(ListView):
-    queryset = Post.objects.all()
-    template_name = 'posts/search_results.html'
-    context_object_name = 'results'
-
-    def get_queryset(self):
-        search_term = self.request.GET.get('search_term')
-        title_q = Q(title__icontains=search_term) if search_term else Q()
-        content_q = Q(content__icontains=search_term) if search_term else Q()
-        # combined_q = title_q & content_q
-        results = Post.objects.filter(content_q | title_q)
-        return results
-
-
 def post_search(request):
     if request.method == "GET":
         search_term = request.GET.get('search_term')
@@ -129,6 +116,8 @@ def post_search(request):
         results = Post.objects.filter(content_q | title_q)
         prompt = f"Post with the term:'{search_term}'"
         return render(request, 'posts/search_results.html', {'results': results, 'search_prompt': prompt})
+    else:
+        raise PermissionDenied()
 
 
 def range_search_view(request):
@@ -161,70 +150,45 @@ def feed_view(request):
     return render(request, 'posts/post_feed.html', context)
 
 
-class LikePostView(generics.CreateAPIView):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    # def post(self, request):
-    #     pk = self.kwargs['pk']
-    #     # post = get_object_or_404(Post, pk=pk)
-    #     post = generics.get_object_or_404(Post, pk=post_id)
-    #     Like.objects.get_or_create(user=request.user, post=post)
-    #     return Response(status=status.HTTP_201_CREATED)
-
-    def perform_create(self, serializer):
-        post_id = self.kwargs['pk']
-        # post = get_object_or_404(Post, pk=post_id)
-        post = generics.get_object_or_404(Post, pk=post_id)
-        Like.objects.get_or_create(user=self.request.user, post=post)
-        if Like.objects.filter(user=self.request.user, post=post).exists():
-            # User has already liked this post, return a 400 error
-            return Response({'error': 'You have already liked this post'}, status=status.HTTP_400_BAD_REQUEST)
-        # serializer.save(post=post)
-        # return Response({'message': 'Liked successfully'}, status=status.HTTP_201_CREATED)
-        serializer = self.get_serializer(
-            data={'post': post, 'user': self.request.user})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # def post(self, request, pk):
-    #     post = get_object_or_404(Post, pk=pk)
-    #     serializer = self.get_serializer(
-    #         data={'post': post, 'user': request.user})
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class UnlikePostView(GenericAPIView, DestroyModelMixin):
+@login_required
+def like_post(request, pk):
+    if request.method == "POST":
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(
+            user=request.user, post=post)
+        if created:
+            post.likes.add(request.user)
+        print("like created", like)
+        return redirect('post_detail', pk=pk)
+    else:
+        raise PermissionDenied
 
 
-@receiver(post_save, sender=Like)
-def send_like_notification(sender, instance, **kwargs):
-    liker = instance.user
-    post = instance.post
+@login_required
+def unlike_post(request, pk):
+    if request.method == "POST":
+        post = get_object_or_404(Post, pk=pk)
+        like = Like.objects.filter(user=request.user, post=post).first()
+        if like:
+            post.likes.remove(request.user)
+            like.delete()
+        return redirect('post_detail', pk=pk)
+    else:
+        raise PermissionDenied
 
-    # Create a notification
-    Notification.objects.create(
-        user=liker,  # recipient
-        # notification message
-        message=f"{liker.username} liked your post: {post.title}",
-        link=post.get_absolute_url()  # link to the post
-    )
 
-
-class UnlikePostView(generics.DestroyAPIView):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def delete(self, request, pk):
-        like = get_object_or_404(Like, post__pk=pk, user=request.user)
-        like.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+# @receiver(post_save, sender=Like)
+# def send_like_notification(sender, instance, **kwargs):
+#    liker = instance.user
+#    post = instance.post
+#
+#    # Create a notification
+#    Notification.objects.create(
+#        user=liker,  # recipient
+#        # notification message
+#        message=f"{liker.username} liked your post: {post.title}",
+#        link=post.get_absolute_url()  # link to the post
+#    )
 
 
 # @receiver(post_delete, sender=Like)

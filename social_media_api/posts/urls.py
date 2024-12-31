@@ -26,6 +26,6 @@ urlpatterns = [
          CommentDetailView.as_view(), name='view_comment'),
     #     path('tags/<slug:tag_slug>/',
     #          PostByTagListView.as_view(), name='tag_posts'),
-    path('post/<int:pk>/like/', LikePostView.as_view(), name='like'),
-    path('post/<int:pk>/unlike/', UnlikePostView.as_view(), name='like'),
+    path('post/<int:pk>/like/', like_post, name='like_post'),
+    path('post/<int:pk>/unlike/', unlike_post, name='unlike_post'),
 ]

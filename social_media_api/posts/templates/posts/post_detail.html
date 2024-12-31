@@ -13,6 +13,21 @@
             <a href="{% url 'update_post' post.id %}">EDIT post</a>
         </p>
     {% endif %}
+    {% if request.user.is_authenticated and request.user in post.likes.all %}
+        <form method="post" action="{% url 'unlike_post' post.id %}">
+            {% csrf_token %}
+            <strong>
+                <p style="color: green;">LIKED</p>
+            </strong>
+            <button class="btn btn-outline-success" type=submit>UNLIKE</button>
+        </form>
+    {% elif request.user.is_authenticated %}
+        <form method="post" action="{% url 'like_post' post.id %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-success" type=submit>LIKE</button>
+        </form>
+    {% endif %}
+    <br>
     {% for tag in post.tags %}
         <li>
             <a href="{% url 'tag_posts' tag %}">{{ tag }}</a>
