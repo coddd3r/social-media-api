@@ -58,6 +58,10 @@ Technical Requirements:
 
 ** TEST IN  VIRTUALENV **
 Stretch Goals (Optional):
+    
+    ####notifs
+    Notifications for posts by people you follow
+    Delete notifications
 
     Likes and Comments: Implement the ability for users to like and comment on posts, with endpoints to manage likes and comments.
     Notifications: Add a notification system where users are notified when someone follows them, likes their post, or comments on it.

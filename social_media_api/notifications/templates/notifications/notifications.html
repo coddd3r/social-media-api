@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% for notification in notifications %}
+        <div class="notification {% if not notification.read %}unread{% endif %}">
+            <p>
+                <strong>{{ notification.actor }}</strong> {{ notification.verb }}
+            </p>
+            {% if notification.target %}
+                <p>
+                    <!--TODO, add different links for posts, comments and likes -->
+                    Post: <a href="{% url 'post_detail' notification.target.id %}">view post</a>
+                {{ notification.post.title }}</a>
+            </p>
+        {% endif %}
+        <p>
+            <small>at: {{ notification.timestamp }}</small>
+        </p>
+        <a href="{% url 'notification_delete' notification.id %}">Delete</a>
+    </div>
+{% empty %}
+    NO NOTIFICATIONS
+{% endfor %}
+{% endblock %}
