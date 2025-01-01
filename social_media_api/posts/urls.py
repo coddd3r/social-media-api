@@ -18,6 +18,11 @@ urlpatterns = [
          CommentCreateView.as_view(), name='create_comment'),
     path('post/<int:pk>/comments/',
          CommentListView.as_view(), name='list_comment'),
+    path('post/<int:pk>/like/', like_post, name='like_post'),
+    path('post/<int:pk>/unlike/', unlike_post, name='unlike_post'),
+    path('post/<int:pk>/unlike/', unlike_post, name='unlike_post'),
+    # path('post/tag/<str:tag>/', TaggedPostListView.as_view(), name='tag_posts'),
+    path('post/tag/<str:tag>/', posts_tagged_by, name='tag_posts'),
     path('comment/<int:pk>/update/',
          CommentUpdateView.as_view(), name='update_comment'),
     path('comment/<int:pk>/delete/',
@@ -26,6 +31,4 @@ urlpatterns = [
          CommentDetailView.as_view(), name='view_comment'),
     #     path('tags/<slug:tag_slug>/',
     #          PostByTagListView.as_view(), name='tag_posts'),
-    path('post/<int:pk>/like/', like_post, name='like_post'),
-    path('post/<int:pk>/unlike/', unlike_post, name='unlike_post'),
 ]

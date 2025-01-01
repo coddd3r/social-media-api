@@ -11,7 +11,9 @@
     <ul>
         {% for post in posts %}
             <li>
-                <h3>Title:{{ post.title }}</h3>
+                <h3>
+                    Title:{{ post.title }}                <a href="{% url 'post_detail' post.id %}">view post</a>
+                </h3>
                 <h4>
                     by author:<a href="{% url 'profile' post.author.id %}">{{ post.author }}</a>
                 </h4>
@@ -38,7 +40,7 @@
                 <br>
                 TAGS:
                 <ul>
-                    {% for tag in post.tags %}
+                    {% for tag in post.tags.all %}
                         <li>
                             <a href="{% url 'tag_posts' tag %}">{{ tag }}</a>
                         </li>
@@ -46,7 +48,6 @@
                         No Tags
                     {% endfor %}
                 </ul>
-                <a href="{% url 'post_detail' post.id %}">view post</a>
             </li>
             <br>
         {% empty %}

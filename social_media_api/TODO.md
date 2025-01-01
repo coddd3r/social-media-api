@@ -1,4 +1,8 @@
 
+
+** TEST IN  VIRTUALENV **
+
+
  BE Capstone Project: Social Media API
 Project Overview:
 
@@ -26,6 +30,7 @@ Functional Requirements:
             The feed should display posts in reverse chronological order (most recent posts first).
             Optionally, allow users to filter the feed by date or search for posts by keyword.
 
+** TEST IN  VIRTUALENV **
 Technical Requirements:
 
     Database:
@@ -51,6 +56,7 @@ Technical Requirements:
         Add pagination to the feed of posts for users with large numbers of followed users or a large volume of posts.
         Provide sorting options such as sorting by Date or Popularity (likes, comments).
 
+** TEST IN  VIRTUALENV **
 Stretch Goals (Optional):
 
     Likes and Comments: Implement the ability for users to like and comment on posts, with endpoints to manage likes and comments.

@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+from taggit.managers import TaggableManager
+
 from accounts.models import CustomUser  # type: ignore
 
 
@@ -12,6 +14,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     likes = models.ManyToManyField(CustomUser, related_name='likes')
+    tags = TaggableManager()
 
     class Meta:
         ordering = ['created_at']  # Order posts by creation date

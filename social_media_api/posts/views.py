@@ -177,6 +177,20 @@ def unlike_post(request, pk):
         raise PermissionDenied
 
 
+class TaggedPostListView(ListView):
+    template_name = 'posts/tagged_posts.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        tag_name = self.kwargs['tag']
+        return Post.objects.filter(tags__name=tag_name)
+
+
+def posts_tagged_by(request, tag):
+    if request.method == "GET":
+        tag_name = tag
+        posts = Post.objects.filter(tags__name=tag_name)
+        return render(request, 'posts/tagged_posts.html', {'posts': posts, 'tag': tag_name})
 # @receiver(post_save, sender=Like)
 # def send_like_notification(sender, instance, **kwargs):
 #    liker = instance.user

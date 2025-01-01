@@ -28,9 +28,11 @@
         </form>
     {% endif %}
     <br>
-    {% for tag in post.tags %}
+    {% for tag in post.tags.all %}
         <li>
             <a href="{% url 'tag_posts' tag %}">{{ tag }}</a>
         </li>
+    {%empty%}
+    No Tags yet
     {% endfor %}
 {% endblock %}
