@@ -1,5 +1,5 @@
 from django.dispatch import receiver
-from posts.models import Post, Like
+from posts.models import Post, Like, Comment
 from django.db import models
 from django.db.models.signals import post_save
 from django.conf import settings
@@ -25,7 +25,7 @@ class Notification(models.Model):
 
 
 @receiver(post_save, sender=Like)
-def create_notification(sender, instance, created, **kwargs):
+def like_notification(sender, instance, created, **kwargs):
     if created:
         # Assuming the post model has a user field for the author
         post = instance.post
@@ -34,6 +34,16 @@ def create_notification(sender, instance, created, **kwargs):
         Notification.objects.create(
             recipient=recipient, actor=actor,  target=post, verb='liked your post')
 
+
+@receiver(post_save, sender=Comment)
+def comment_notification(sender, instance, created, **kwargs):
+    if created:
+        # Assuming the post model has a user field for the author
+        post = instance.post
+        actor = instance.author
+        recipient = post.author
+        Notification.objects.create(
+            recipient=recipient, actor=actor,  target=post, verb="Commented on your post")
 
 #
 #
