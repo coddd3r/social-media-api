@@ -17,16 +17,16 @@ header {
     text-align: center;
 }
 
-header nav ul {
+nav ul {
     list-style-type: none;
 }
 
-header nav ul li {
+nav ul li {
     display: inline;
     margin: 0 15px;
 }
 
-header nav ul li a {
+nav ul li a {
     color: white;
     text-decoration: none;
     font-size: 18px;
@@ -42,4 +42,9 @@ footer {
     padding: 10px;
     background-color: #333;
     color: white;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #f8f9fa;
+    border-color: #dee2e6 #dee2e6 #fff;
 }

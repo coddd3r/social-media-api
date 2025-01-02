@@ -12,9 +12,10 @@ from rest_framework.response import Response
 
 # Create your views here.
 from .forms import RegisterForm, UpdateUserForm, UpdateProfileForm
-from .serializers import LoginSerializer
+from .serializers import BaseUserSmallSerializer, LoginSerializer
 from .models import CustomUser, UserProfile
 from posts.models import Post
+from notifications.models import Notification
 
 
 def register(request):
@@ -44,24 +45,6 @@ def user_login(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomAuthToken(ObtainAuthToken):
-    def post(self, request):
-        serializer = self.serializer_class(
-            data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'username': user.username
-        })
-
-
-# class UserProfileView(DetailView):
-#    model = UserProfile
-#    template = 'accounts/profile.html'
-
 def profile_view(request, user_id):
     profile_instance = UserProfile.objects.get(id=user_id)
     user = CustomUser.objects.get(id=user_id)
@@ -70,11 +53,15 @@ def profile_view(request, user_id):
         id=request.user.id).count() > 0
     context['profile'] = profile_instance
     context['followers'] = user.followers.all()
-    print("user", user.id, "followers:", context['followers'])
     context['following'] = user.following.all()
     context['posts'] = list(Post.objects.filter(author=user))
     # context['posts'] = PostSerializer(Post.objects.filter(author=user))
     return render(request, "accounts/profile_view.html", context)
+
+
+# class UserProfileView(DetailView):
+#    model = UserProfile
+#    template = 'accounts/profile.html'
 
 
 @login_required
@@ -106,6 +93,9 @@ def follow_user(request, user_id):
     user_to_follow = get_object_or_404(CustomUser, id=user_id)
     if not request.user.following.filter(id=user_id).exists():
         request.user.following.add(user_to_follow)
+        Notification.objects.create(
+            recipient=user_to_follow, target=request.user, actor=request.user, verb="Followed you")
+
         user_to_follow.followers.add(request.user)
     return redirect(reverse_lazy('profile', kwargs={'user_id': user_id}))
 
@@ -116,3 +106,31 @@ def unfollow_user(request, user_id):
     request.user.following.remove(user_to_unfollow)
     user_to_unfollow.followers.remove(request.user)
     return redirect(reverse_lazy('profile', kwargs={'user_id': user_id}))
+
+
+def get_connections(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+  #  followers = BaseUserSmallSerializer(user.followers.all(
+  #  ), many=True).data
+  #  following = BaseUserSmallSerializer(user.following.all(), many=True).data
+
+#    context = {"followers": followers, "following": following}
+    context = {}
+    context['followers'] = user.followers.all()
+    context['following'] = user.following.all()
+
+    return render(request, 'accounts/connections_view.html', context)
+
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request):
+        serializer = self.serializer_class(
+            data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'username': user.username
+        })

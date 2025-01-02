@@ -21,6 +21,9 @@ class Post(models.Model):
         verbose_name = 'Social Media Post'
         verbose_name_plural = 'Social Media Posts'
 
+    def get_model_type(self):
+        return self.__class__.__name__
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -32,6 +35,9 @@ class Comment(models.Model):
     class Meta:
         ordering = ['created_at']
 
+    def get_model_type(self):
+        return self.__class__.__name__
+
 
 class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -41,3 +47,6 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ['post', 'user']
+
+    def get_model_type(self):
+        return self.__class__.__name__

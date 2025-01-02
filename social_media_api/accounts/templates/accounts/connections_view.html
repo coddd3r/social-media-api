@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Create tabs -->
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#followers" data-toggle="tab">Followers</a>
+        </li>
+        <li>
+            <a href="#following" data-toggle="tab">Following</a>
+        </li>
+    </ul>
+    <!-- Create tab content -->
+    <div class="tab-content">
+        <div class="tab-pane active" id="followers">
+            <!-- Display followers -->
+            FOLLOWERS:
+            <br>
+            {% for follower in  followers %}
+                {{ follower.username }} <a href="{% url 'profile' follower.id %}">view profile</a>
+            {% endfor %}
+        </div>
+        <div class="tab-pane" id="following">
+            <!-- Display following -->
+            FOLLOWING:
+            <br>
+            {% for following in following %}
+                {{ following.username }} <a href="{% url 'profile' follower.id %}">view profile</a>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

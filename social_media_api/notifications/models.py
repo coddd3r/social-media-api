@@ -23,6 +23,9 @@ class Notification(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def get_model_type(self):
+        return self.__class__.__name__
+
 
 @receiver(post_save, sender=Like)
 def like_notification(sender, instance, created, **kwargs):

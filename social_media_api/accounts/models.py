@@ -17,6 +17,9 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField(unique=True)
 
+    def get_model_type(self):
+        return self.__class__.__name__
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(
@@ -31,6 +34,8 @@ class UserProfile(models.Model):
     def __str__(self):
         return f'{self.user.username} Profile'
 
+    def get_model_type(self):
+        return self.__class__.__name__
     # role = models.CharField(max_length=50, choices=[
     #     ('Admin', "administrator"), ('Librarian', "librarian"), ('Member',"member")])
 
@@ -40,3 +45,6 @@ def create_profile(sender, instance, created, **kwargs):
     if created:
         user_profile = UserProfile.objects.create(user=instance)
         user_profile.save()
+
+    def get_model_type(self):
+        return self.__class__.__name__

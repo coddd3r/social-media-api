@@ -7,3 +7,4 @@ target/
 db.sqlite3
 media/
 .vscode/
+evaluation.md

@@ -8,16 +8,20 @@
             {% if notification.target %}
                 <p>
                     <!--TODO, add different links for posts, comments and likes -->
-                    Post: <a href="{% url 'post_detail' notification.target.id %}">view post</a>
-                {{ notification.post.title }}</a>
+                    {% if notification.target.get_model_type == 'Post' %}
+                        Post : <a href="{% url 'post_detail' notification.target.id %}">view post</a>
+                        {{ notification.post.title }}>
+                    {% elif notification.target.get_model_type == 'CustomUser' %}
+                        User: <a href="{% url 'profile' notification.target.id %}">view profile</a>
+                    {% endif %}
+                </p>
+            {% endif %}
+            <p>
+                <small>at: {{ notification.timestamp }}</small>
             </p>
-        {% endif %}
-        <p>
-            <small>at: {{ notification.timestamp }}</small>
-        </p>
-        <a href="{% url 'notification_delete' notification.id %}">Delete</a>
-    </div>
-{% empty %}
-    NO NOTIFICATIONS
-{% endfor %}
+            <a href="{% url 'notification_delete' notification.id %}">Delete</a>
+        </div>
+    {% empty %}
+        NO NOTIFICATIONS
+    {% endfor %}
 {% endblock %}
