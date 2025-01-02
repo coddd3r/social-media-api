@@ -1,4 +1,4 @@
-from .forms import DateForm
+from .forms import CommentForm, DateForm
 from http.client import HTTPResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -74,6 +74,12 @@ class PostUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
 class PostDetailView(DetailView):
     model = Post
     template_name = 'posts/post_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["comments"] = Comment.objects.filter(
+            post=self.get_object())[:10]
+        return context
 
 
 class PostDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
@@ -188,9 +194,8 @@ class TaggedPostListView(ListView):
 
 def posts_tagged_by(request, tag):
     if request.method == "GET":
-        tag_name = tag
-        posts = Post.objects.filter(tags__name=tag_name)
-        return render(request, 'posts/tagged_posts.html', {'posts': posts, 'tag': tag_name})
+        posts = Post.objects.filter(tags__name=tag)
+        return render(request, 'posts/tagged_posts.html', {'posts': posts, 'tag': tag})
 # @receiver(post_save, sender=Like)
 # def send_like_notification(sender, instance, **kwargs):
 #    liker = instance.user
@@ -222,7 +227,7 @@ class CommentPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class CommentListView(generics.ListAPIView):
+class CommentListView(ListView):
     pagination_class = CommentPagination
     filter_backends = [filters.SearchFilter]
 
@@ -236,32 +241,33 @@ class CommentListView(generics.ListAPIView):
         return Response(serializer.data)
 
 
-class CommentCreateView(APIView, LoginRequiredMixin, UserPassesTestMixin):
-    serializer_class = CommentSerializer
+class CommentCreateView(CreateView, LoginRequiredMixin, UserPassesTestMixin):
+    template_name = 'posts/comment_create.html'
+    model = Comment
+    form_class = CommentForm
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def form_valid(self, form):
+        author = get_object_or_404(CustomUser, pk=self.request.user.pk)
+        # author = CustomUser.objects.get(id=self.request.user.id)
+        form.instance.author = author
+        post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        form.instance.post = post
+        return super().form_valid(form)
 
-
-class CommentUpdateView(APIView, LoginRequiredMixin, UserPassesTestMixin):
-    def post(self, request):
-        serializer = CommentSerializer(data=request.data, partial=True)
-        if serializer.is_valid():
-            comment = Comment.objects.get(id=request.data['pk'])
-            if request.user != request.user:
-                raise PermissionDenied(
-                    'Only the author can edit or delete this post')
-            if comment.author == request.user:
-                serializer.update(Comment, serializer.validated_data)
-                return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+    def get_success_url(self):
+        return reverse_lazy('post_detail', kwargs={"pk": self.object.post.pk})
 
 
-class CommentDetailView(APIView):
+class CommentUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'posts/comment_create.html'
+
+    def get_success_url(self):
+        return reverse_lazy('post_detail', kwargs={"pk": self.object.post.id})
+
+
+class CommentDetailView(DetailView):
     def get(self, request):
         # Handle GET request
         comment = Comment.objects.get(id=request.data['id'])
@@ -269,13 +275,36 @@ class CommentDetailView(APIView):
         return Response(serializer.data)
 
 
-class CommentDeleteView(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
+class CommentDeleteViewAPI(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
     def delete(self, request, pk):
-        comment = self.get_object(pk)
+        comment = self.get_object()
         if request.user == comment.user:
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
+    template_name = 'posts/comment_delete.html'
+    model = Comment
+
+    def dispatch(self, request, pk):
+        if request.method == 'POST':
+            # Delete the object if confirmed
+            comment = get_object_or_404(Comment, pk=pk)
+            successurl = self.get_success_url()
+            if comment.author == request.user:
+                comment.delete()
+                return redirect(successurl)
+            else:
+                raise PermissionDenied()
+        elif request.method == "GET":
+            return render(request, self.template_name, {'object': self.get_object()})
+        else:
+            raise PermissionDenied()
+
+    def get_success_url(self):
+        return reverse_lazy('post_detail', kwargs={"pk": self.get_object().post.id})

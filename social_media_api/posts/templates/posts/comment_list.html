@@ -1,0 +1,15 @@
+<!-- comment_list.html -->
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Latest comments</h1>
+    <ul>
+        {% for comment in comments %}
+            <li>
+                <p>{{ comment.author }}</p>
+                <p>{{ comment.content|truncatewords:20 }}</p>
+            </li>
+        {% empty %}
+            <li>No comments available.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

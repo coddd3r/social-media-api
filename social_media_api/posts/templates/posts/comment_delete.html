@@ -1,0 +1,17 @@
+<!-- delete_comment.html -->
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Delete Comment</h1>
+    <p>
+        Are you sure you want to delete comment by <a href="{% url 'profile' object.author.id %}">{{ object.author }}</a>
+    </p>
+    <p>
+        <i>content:</i> {{ object.content }}
+    </p>
+    <p>Last Updated {{ object.updated_at }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url 'post_detail' object.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}
