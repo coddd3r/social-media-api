@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -80,7 +80,7 @@ def profile_update_view(request, user_id):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            return redirect(to='profile')
+            return redirect(reverse('profile', kwargs={'user_id': user_id}))
     else:
         user_form = UpdateUserForm(instance=user_instance)
         profile_form = UpdateProfileForm(instance=profile_instance)

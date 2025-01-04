@@ -2,9 +2,9 @@
 {% block title %}{{ post.title }}{% endblock %}
 {% block content %}
     <h1>{{ post.title }}</h1>
-    <p class="date">Published {{ post.published_date }} by {{ post.author }}</p>
+    <p class="date">Published  by {{ post.author.username }}</p>
     <p class="date">Lates version {{ post.updated_at }}</p>
-    CONTENT:{{ post.content|linebreaks }}
+    <strong>CONTENT:</strong>{{ post.content|linebreaks }}
     {% if user.is_authenticated and user.id == post.author.id %}
         <p>
             <a href="{% url 'delete_post' post.id %}">DELETE post</a>
@@ -13,7 +13,7 @@
             <a href="{% url 'update_post' post.id %}">EDIT post</a>
         </p>
     {% endif %}
-    {% if request.user.is_authenticated and request.user in post.likes.all %}
+    {% if request.user.is_authenticated and user.id in post.likes %}
         <form method="post" action="{% url 'unlike_post' post.id %}">
             {% csrf_token %}
             <strong>

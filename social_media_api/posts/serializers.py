@@ -6,12 +6,21 @@ from accounts.serializers import CustomUserSerializer, BaseUserSmallSerializer  
 
 class PostSerializer(serializers.ModelSerializer):
     author = BaseUserSmallSerializer(read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = '__all__'
-        # fields = ['id', 'author', 'title',
-        #           'content', 'created_at', 'updated_at']
+        fields = ['id', 'author', 'title',
+                  'content', 'created_at', 'updated_at', 'likes', 'likes_count']
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    # return only user id for post likes since we already know the post
+    def get_likes(self, obj):
+        return [post.id for post in obj.likes.all()]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -39,4 +48,3 @@ class LikeSerializer(serializers.ModelSerializer):
         if existing_instance:
             return existing_instance  # return the existing instance
         return super().create(validated_data)
-

@@ -26,8 +26,6 @@ from .forms import PostForm
 from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 from .models import Post, Comment, Like
 
-from notifications.models import Notification
-
 
 class PostPagination(PageNumberPagination):
     page_size = 10  # Adjust the page size as needed
@@ -43,8 +41,12 @@ class PostListView(ListView):
 
     def get_queryset(self):
         ret = Post.objects.all()
-        print("getting posts for base list", ret)
         return ret
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["posts"] = PostSerializer(self.get_queryset(), many=True).data
+        return context
 
 
 class PostCreateView(CreateView, LoginRequiredMixin):
@@ -77,6 +79,7 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["post"] = PostSerializer(self.get_object()).data
         context["comments"] = Comment.objects.filter(
             post=self.get_object())[:10]
         return context

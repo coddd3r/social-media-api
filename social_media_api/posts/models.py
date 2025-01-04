@@ -13,7 +13,7 @@ class Post(models.Model):
     content = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    likes = models.ManyToManyField(CustomUser, related_name='likes')
+    likes = models.ManyToManyField(CustomUser, related_name='post_likes')
     tags = TaggableManager()
 
     class Meta:
@@ -31,6 +31,7 @@ class Comment(models.Model):
     content = models.TextField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(CustomUser, related_name='comment_likes')
 
     class Meta:
         ordering = ['created_at']

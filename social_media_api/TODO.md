@@ -10,7 +10,7 @@ As a backend developer, your task is to design and implement a Social Media API 
 Functional Requirements:
 
     Post Management (CRUD):
-        Implement the ability to Create, Read, Update, and Delete (CRUD) posts.
+       (DONE) Implement the ability to Create, Read, Update, and Delete (CRUD) posts.
         Each post should have the following attributes: Content (text), User (author), Timestamp, and optional Media (e.g., image URLs).
         Ensure validation for required fields like Content and User.
         Users can only update or delete their own posts.
@@ -71,3 +71,4 @@ Stretch Goals (Optional):
     Trending Posts: Implement a feature to display trending posts based on the number of likes or reposts in a given period.
     Profile Customization: Allow users to customize their profile with additional fields such as Location, Website, and Cover Photo.
     Media Uploads: Add functionality for users to upload media files (images, videos) with their posts, storing these files on a cloud service like AWS S3.
+    Comment likes

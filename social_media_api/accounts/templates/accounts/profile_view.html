@@ -8,6 +8,7 @@
         </ul>
     </nav>
     <h2>{{ profile.user.username }}'s Profile</h2>
+    <a href="{% url 'profile_update' user.id %}">Update Profile</a>
     {% if user.is_authenticated and not already_followed  and user.id != profile.user.id %}
         <form method="post" action="{% url 'follow_user' profile.user.id %}">
             {% csrf_token %}
@@ -20,11 +21,11 @@
         </form>
     {% endif %}
     <div>
-        <img src="{{ profile.profile_picture }}" alt="Profile Picture">
+        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
     </div>
     <p>Bio: {{ profile.bio }}</p>
     <!-- Followers -->
-    <h2>Followers ({{ followers|length }})</h2>
+    <h4>Followers ({{ followers|length }})</h4>
     <ul>
         {% for follower in followers %}
             <li>{{ follower.username }}</li>
@@ -33,7 +34,7 @@
         {% endfor %}
     </ul>
     <!-- Following -->
-    <h2>Following ({{ following|length }})</h2>
+    <h4>Following ({{ following|length }})</h4>
     <ul>
         {% for followed in following %}
             <li>{{ followed.username }}</li>
@@ -42,7 +43,7 @@
         {% endfor %}
     </ul>
     <!-- Posts -->
-    <h2>Posts ({{ posts|length }})</h2>
+    <h4>Posts ({{ posts|length }})</h4>
     <ul>
         {% for post in posts %}
             <li>{{ post.content }} ({{ post.created_at }})</li>
