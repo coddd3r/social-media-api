@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure-ft^1-gz-++4#wg0^pou$tdh=+la2_ko*=&-b-=s@q$zkyj!_!#
 DEBUG = True
 # DEBUG = False
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost','ddinho.pythonanywhere.com']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 # Application definition
@@ -163,7 +163,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
