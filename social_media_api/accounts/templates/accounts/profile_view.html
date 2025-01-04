@@ -8,7 +8,9 @@
         </ul>
     </nav>
     <h2>{{ profile.user.username }}'s Profile</h2>
-    <a href="{% url 'profile_update' user.id %}">Update Profile</a>
+    {% if user == profile.user %}
+        <a href="{% url 'profile_update' user.id %}">Update Profile</a>
+    {% endif %}
     {% if user.is_authenticated and not already_followed  and user.id != profile.user.id %}
         <form method="post" action="{% url 'follow_user' profile.user.id %}">
             {% csrf_token %}
