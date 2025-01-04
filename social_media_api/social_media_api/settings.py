@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'crispy_forms',
     'taggit',
+    #   'taggit_serializer',
 
     # owned apps
     'accounts',
