@@ -10,6 +10,9 @@
     <h2>{{ profile.user.username }}'s Profile</h2>
     {% if user == profile.user %}
         <a href="{% url 'profile_update' user.id %}">Update Profile</a>
+        <p style="color: red;">
+            <a style="color: red;" href="{% url 'delete_account' %}">Delete Profile</a>
+        </p>
     {% endif %}
     {% if user.is_authenticated and not already_followed  and user.id != profile.user.id %}
         <form method="post" action="{% url 'follow_user' profile.user.id %}">
@@ -26,6 +29,7 @@
         <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
     </div>
     <p>Bio: {{ profile.bio }}</p>
+    <br>
     <!-- Followers -->
     <h4>Followers ({{ followers|length }})</h4>
     <ul>
@@ -35,6 +39,7 @@
             NO followers
         {% endfor %}
     </ul>
+    <br>
     <!-- Following -->
     <h4>Following ({{ following|length }})</h4>
     <ul>
@@ -44,13 +49,14 @@
             NO following
         {% endfor %}
     </ul>
+    <br>
     <!-- Posts -->
     <h4>Posts ({{ posts|length }})</h4>
     <ul>
         {% for post in posts %}
             <li>{{ post.content }} ({{ post.created_at }})</li>
             {% if user.is_authenticated and profile.user.id == user.id %}
-                <a href={% url 'update_post' post.id %}>Edit post</a>
+                <a href={% url 'post_detail' post.id %}>view post</a>
             {% endif %}
         {% empty %}
             NO posts

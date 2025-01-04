@@ -12,7 +12,7 @@
         {% for post in posts %}
             <li>
                 <h3>
-                    Title:{{ post.title }}<a href="{% url 'post_detail' post.id %}">view post</a>
+                    Title: {{ post.title }}<a href="{% url 'post_detail' post.id %}">view post</a>
                 </h3>
                 <h4>
                     by author:<a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a>

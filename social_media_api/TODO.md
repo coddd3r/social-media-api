@@ -11,9 +11,9 @@ Functional Requirements:
 
     Post Management (CRUD):
        (DONE) Implement the ability to Create, Read, Update, and Delete (CRUD) posts.
-        Each post should have the following attributes: Content (text), User (author), Timestamp, and optional Media (e.g., image URLs).
-        Ensure validation for required fields like Content and User.
-        Users can only update or delete their own posts.
+       (DONE)Each post should have the following attributes: Content (text), User (author), Timestamp, and optional Media (e.g., image URLs).
+       (DONE) Ensure validation for required fields like Content and User.
+       (DONE) Users can only update or delete their own posts.
 
     Users Management (CRUD):
         Implement CRUD operations for users.

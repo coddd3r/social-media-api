@@ -1,10 +1,12 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 
+from django.views.generic import View
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -12,7 +14,7 @@ from rest_framework.response import Response
 
 # Create your views here.
 from .forms import RegisterForm, UpdateUserForm, UpdateProfileForm
-from .serializers import BaseUserSmallSerializer, LoginSerializer
+from .serializers import LoginSerializer
 from .models import CustomUser, UserProfile
 from posts.models import Post
 from notifications.models import Notification
@@ -59,11 +61,6 @@ def profile_view(request, user_id):
     return render(request, "accounts/profile_view.html", context)
 
 
-# class UserProfileView(DetailView):
-#    model = UserProfile
-#    template = 'accounts/profile.html'
-
-
 @login_required
 def profile_update_view(request, user_id):
     if request.user.id != user_id:
@@ -107,6 +104,8 @@ def unfollow_user(request, user_id):
     user_to_unfollow.followers.remove(request.user)
     return redirect(reverse_lazy('profile', kwargs={'user_id': user_id}))
 
+# get a user's followers and who they follow
+
 
 def get_connections(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
@@ -120,6 +119,16 @@ def get_connections(request, user_id):
     context['following'] = user.following.all()
 
     return render(request, 'accounts/connections_view.html', context)
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        return redirect('home')
+    else:
+        return render(request, 'accounts/delete_account.html')
 
 
 class CustomAuthToken(ObtainAuthToken):

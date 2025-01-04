@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            Are you sure you want to <strong>delete your account?</strong>
+        </p>
+        <p>This action cannot be undone!</p>
+        <button class="red-text", type="submit">Delete Account</button>
+    </form>
+{% endblock %}

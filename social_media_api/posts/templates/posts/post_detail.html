@@ -2,15 +2,17 @@
 {% block title %}{{ post.title }}{% endblock %}
 {% block content %}
     <h1>{{ post.title }}</h1>
-    <p class="date">Published  by {{ post.author.username }}</p>
+    <p class="date">
+        Published  by <a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a>
+    </p>
     <p class="date">Lates version {{ post.updated_at }}</p>
     <strong>CONTENT:</strong>{{ post.content|linebreaks }}
     {% if user.is_authenticated and user.id == post.author.id %}
         <p>
-            <a href="{% url 'delete_post' post.id %}">DELETE post</a>
+            <a style="color: red;" href="{% url 'delete_post' post.id %}">Delete post</a>
         </p>
         <p>
-            <a href="{% url 'update_post' post.id %}">EDIT post</a>
+            <a href="{% url 'update_post' post.id %}">Edit post</a>
         </p>
     {% endif %}
     {% if request.user.is_authenticated and user.id in post.likes %}
@@ -54,10 +56,10 @@
             </p>
             {% if comment.author == user %}
                 <p>
-                    <a href="{% url 'comment_update' comment.id %}">Edit COMMENT</a>
+                    <a href="{% url 'comment_update' comment.id %}">Edit comment</a>
                 </p>
                 <p>
-                    <a href="{% url 'comment_delete' comment.id %}">DELETE COMMENT</a>
+                    <a style="color: red;"href="{% url 'comment_delete' comment.id %}">Delete comment</a>
                 </p>
             {% endif %}
         </li>

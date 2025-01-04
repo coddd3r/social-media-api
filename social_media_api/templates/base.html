@@ -19,36 +19,38 @@
                     <li>
                         <a href="{% url 'posts' %}">Posts</a>
                     </li>
-                    <li>
-                        <a href="{% url 'feed' %}">Personal Feed</a>
-                    </li>
-                    <li>
-                        <form action="{% url 'search_post' %}" method="get">
-                            <input type="text" name="search_term" placeholder="Search...">
-                            <button type="submit">Search</button>
-                        </form>
-                    </li>
-                    <li></li>
                     {% if user.is_authenticated %}
+                        <li>
+                            <a href="{% url 'profile' user.id %}">Profile</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'feed' %}">Personal Feed</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'notifications' %}">Notifications</a>
+                        </li>
                         <li>
                             <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
                                 <button type="submit">Log Out</button>
                             </form>
                         </li>
-                        <li>
-                            <a href="{% url 'notifications' %}">Notifications</a>
-                        </li>
                     {% else %}
                         <li>
                             <button>
-                                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                                <a href="{% url 'login' %}">Login</a>
                             </button>
                         </li>
                         <li>
                             <a href="{% url 'register' %}">Register</a>
                         </li>
                     {% endif %}
+                    <li>
+                        <form action="{% url 'search_post' %}" method="get">
+                            <input type="text" name="search_term" placeholder="Search...">
+                            <button type="submit">Search</button>
+                        </form>
+                    </li>
                 </ul>
             </nav>
         </header>
