@@ -16,30 +16,30 @@ Functional Requirements:
        (DONE) Users can only update or delete their own posts.
 
     Users Management (CRUD):
-        Implement CRUD operations for users.
-        Each user should have a unique Username, Email, Password, and a profile that includes optional fields like Bio and Profile Picture.
-        Only authenticated users should be able to create, update, or delete their own posts.
+        (DONE)Implement CRUD operations for users.
+        (DONE)Each user should have a unique Username, Email, Password, and a profile that includes optional fields like Bio and Profile Picture.
+        (DONE)Only authenticated users should be able to create, update, or delete their own posts.
 
     Follow System:
-        Create an endpoint to allow users to follow and unfollow other users.
-        Implement a system to store the follower and following relationships between users.
-        Ensure that users cannot follow themselves.
+        (DONE)Create an endpoint to allow users to follow and unfollow other users.
+        (DONE)Implement a system to store the follower and following relationships between users.
+        (DONE)Ensure that users cannot follow themselves.
 
     Feed of Posts:
         Create an endpoint to allow users to view a feed of posts from the users they follow.
-            The feed should display posts in reverse chronological order (most recent posts first).
-            Optionally, allow users to filter the feed by date or search for posts by keyword.
+            (DONE)The feed should display posts in reverse chronological order (most recent posts first).
+            (DONE)Optionally, allow users to filter the feed by date or search for posts by keyword.
 
 ** TEST IN  VIRTUALENV **
 Technical Requirements:
 
     Database:
-        Use Django ORM to interact with the database.
-        Define models for Users, Posts, and Followers.
-        Ensure that each post is linked to a user and followers/following relationships are tracked efficiently.
+        (DONE)Use Django ORM to interact with the database.
+        **Define models for Users, Posts, and Followers.
+        (DONE)Ensure that each post is linked to a user and followers/following relationships are tracked efficiently.
 
     Authentication:
-        Implement user authentication using Django’s built-in authentication system.
+        (DONE)Implement user authentication using Django’s built-in authentication system.
         Users must be logged in to create, update, or delete posts, follow other users, or view their feed.
         Optionally, implement token-based authentication (JWT) to provide secure access to the API.
 
@@ -63,8 +63,8 @@ Stretch Goals (Optional):
     Notifications for posts by people you follow
     Delete notifications
 
-    Likes and Comments: Implement the ability for users to like and comment on posts, with endpoints to manage likes and comments.
-    Notifications: Add a notification system where users are notified when someone follows them, likes their post, or comments on it.
+    (DONE)Likes and Comments: Implement the ability for users to like and comment on posts, with endpoints to manage likes and comments.
+    (DONE)Notifications: Add a notification system where users are notified when someone follows them, likes their post, or comments on it.
     Direct Messaging: Implement a direct messaging feature allowing users to send private messages to each other.
     Post Sharing and Reposts: Add functionality for users to share or “repost” content from other users in their feed.
     Hashtags and Tagging: Allow users to tag other users in posts or use hashtags, with endpoints to view posts tagged with specific hashtags or mentions.

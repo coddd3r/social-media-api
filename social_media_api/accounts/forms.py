@@ -43,7 +43,13 @@ class UpdateProfileForm(forms.ModelForm):
     def save(self, commit=True):
         profile = super().save(commit=False)
         if self.cleaned_data['remove_picture']:
-            profile.profile_picture = 'default.jpg'
+            if profile.profile_picture == 'default.jpg':
+                pass
+            else:
+                profile.profile_picture.delete(
+                    save=False)  # delete old image file
+                profile.profile_picture = 'default.jpg'  # set default image
+                profile.save()
 
         if commit:
             profile.save()
