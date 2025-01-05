@@ -72,3 +72,6 @@ Stretch Goals (Optional):
     Profile Customization: Allow users to customize their profile with additional fields such as Location, Website, and Cover Photo.
     Media Uploads: Add functionality for users to upload media files (images, videos) with their posts, storing these files on a cloud service like AWS S3.
     Comment likes
+
+extras:
+Delete deleted profile pics from medial library

@@ -75,8 +75,13 @@ def profile_update_view(request, user_id):
             request.POST, request.FILES, instance=profile_instance)
 
         if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
+            # profile = profile_form.save()
+            # if profile_form.cleaned_data['remove_picture']:
+            # profile.profile_picture.delete(save=False)
+            #    profile.profile_picture = 'default.jpg'
+            # profile.save()
             profile_form.save()
+            user_form.save()
             return redirect(reverse('profile', kwargs={'user_id': user_id}))
     else:
         user_form = UpdateUserForm(instance=user_instance)

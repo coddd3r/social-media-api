@@ -24,20 +24,40 @@ class CustomUser(AbstractUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(
         CustomUser, on_delete=models.CASCADE, related_name='profile')
-    # first_name = models.CharField(max_length=50)
-    # last_name = models.CharField(max_length=50)
-#    email = models.EmailField()
+    # TODO!: consider using a handle vs username
+    first_name = models.CharField(max_length=50, default="no_first_name")
+    last_name = models.CharField(max_length=50, default="no_last_name")
     profile_picture = models.ImageField(
-        default='default.jpg', upload_to='profile_pics')
+        default='default.jpg', upload_to='profile_pics', width_field='image_width', height_field='image_height')
     bio = models.TextField(max_length=300, null=True)
+    image_width = models.PositiveIntegerField(
+        blank=True, null=True, default=60)
+    image_height = models.PositiveIntegerField(
+        blank=True, null=True, default=60)
 
     def __str__(self):
         return f'{self.user.username} Profile'
 
     def get_model_type(self):
         return self.__class__.__name__
-    # role = models.CharField(max_length=50, choices=[
-    #     ('Admin', "administrator"), ('Librarian', "librarian"), ('Member',"member")])
+
+    # resize all images to a standard size
+   # def save(self, *args, **kwargs):
+   #     if self.profile_picture:
+   #         print("\n\n in model save pic:", self.profile_picture)
+   #         from PIL import Image
+   #         import io
+   #         from django.core.files.base import ContentFile
+
+   #         img = Image.open(self.profile_picture)
+   #         if img.width != 200 or img.height != 200:
+   #             output = io.BytesIO()
+   #             img.resize((200, 200), Image.Resampling.LANCZOS).save(
+   #                 output, format='png', quality=95)
+   #             output.seek(0)
+   #             self.profile_picture.save(
+   #                 self.profile_picture.name, ContentFile(output.read()), save=False)
+   #     super().save(*args, **kwargs)
 
 
 @receiver(post_save, sender=CustomUser)
@@ -48,3 +68,6 @@ def create_profile(sender, instance, created, **kwargs):
 
     def get_model_type(self):
         return self.__class__.__name__
+
+
+#
