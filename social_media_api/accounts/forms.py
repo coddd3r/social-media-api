@@ -46,9 +46,10 @@ class UpdateProfileForm(forms.ModelForm):
             if profile.profile_picture == 'default.jpg':
                 pass
             else:
+                # delete old image file
                 profile.profile_picture.delete(
-                    save=False)  # delete old image file
-                profile.profile_picture = 'default.jpg'  # set default image
+                    save=False)
+                profile.profile_picture = 'default.jpg'
                 profile.save()
 
         if commit:

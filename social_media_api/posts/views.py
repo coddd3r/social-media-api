@@ -1,3 +1,5 @@
+from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.views.generic.list import Paginator
 from .forms import CommentForm, DateForm
 from http.client import HTTPResponse
 from django.core.exceptions import PermissionDenied
@@ -13,24 +15,18 @@ from django.views.generic import DeleteView, ListView, CreateView, UpdateView, D
 
 from rest_framework import filters
 from rest_framework import generics
-from rest_framework import permissions
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from accounts.models import CustomUser
 
 
 from .forms import PostForm
-from .serializers import PostSerializer, CommentSerializer, LikeSerializer
+from .serializers import PostSerializer, CommentSerializer
 from .models import Post, Comment, Like
 
-
-class PostPagination(PageNumberPagination):
-    page_size = 10  # Adjust the page size as needed
-    page_size_query_param = 'page_size'
-    max_page_size = 100
+# show all posts by all users in chronoloigcal order with latest first
 
 
 class PostListView(ListView):
@@ -40,13 +36,24 @@ class PostListView(ListView):
     context_object_name = 'posts'
 
     def get_queryset(self):
-        ret = Post.objects.all()
-        return ret
+        posts = Post.objects.all().order_by('-created_at')
+        posts = PostSerializer(posts, many=True).data
+        return posts
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["posts"] = PostSerializer(self.get_queryset(), many=True).data
-        return context
+
+class PostFeedView(ListView):
+    model = Post
+    paginate_by = 10  # Set the number of items per page
+    template_name = 'posts/post_feed.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        request = self.request
+        following_users = request.user.following.all()
+        posts = Post.objects.filter(
+            author__in=following_users).order_by('-created_at')
+        posts = PostSerializer(posts, many=True).data
+        return posts
 
 
 class PostCreateView(CreateView, LoginRequiredMixin):
@@ -103,19 +110,6 @@ class PostDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
             return render(request, self.template_name, {'object': PostSerializer(self.get_object())})
 
 
-class PostSearchView(generics.ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-    def get_queryset(self):
-        search_term = self.request.GET.get('search_term')
-        title_q = Q(title__icontains=search_term) if search_term else Q()
-        content_q = Q(content__icontains=search_term) if search_term else Q()
-        # combined_q = title_q & content_q
-        results = Post.objects.filter(content_q | title_q)
-        return results
-
-
 def post_search(request):
     if request.method == "GET":
         search_term = request.GET.get('search_term')
@@ -145,18 +139,6 @@ def range_search_view(request):
     else:
         form = DateForm()
         return render(request, 'posts/date_search.html', {'form': form})
-
-
-def feed_view(request):
-    following_users = request.user.following.all()
-    posts = Post.objects.filter(
-        author__in=following_users).order_by('-created_at')
-    posts = PostSerializer(posts, many=True).data
-
-    context = {}
-    context['posts'] = posts
-    context['user'] = request.user
-    return render(request, 'posts/post_feed.html', context)
 
 
 @login_required
@@ -199,31 +181,13 @@ def posts_tagged_by(request, tag):
     if request.method == "GET":
         posts = Post.objects.filter(tags__name=tag)
         return render(request, 'posts/tagged_posts.html', {'posts': posts, 'tag': tag})
-# @receiver(post_save, sender=Like)
-# def send_like_notification(sender, instance, **kwargs):
-#    liker = instance.user
-#    post = instance.post
-#
-#    # Create a notification
-#    Notification.objects.create(
-#        user=liker,  # recipient
-#        # notification message
-#        message=f"{liker.username} liked your post: {post.title}",
-#        link=post.get_absolute_url()  # link to the post
-#    )
-
-
-# @receiver(post_delete, sender=Like)
-# def send_unlike_notification(sender, instance, **kwargs):
-#     # Send a notification to the post author and/or other interested parties
-#     pass
-
-# "generics.get_object_or_404(Post, pk=pk)", "Like.objects.get_or_create(user=request.user, post=post)
 
 
 ##
 # COMMENTS
 ##
+
+
 class CommentPagination(PageNumberPagination):
     page_size = 20  # Adjust the page size as needed
     page_size_query_param = 'page_size'

@@ -74,4 +74,6 @@ Stretch Goals (Optional):
     Comment likes
 
 extras:
-Delete deleted profile pics from medial library
+- Delete deleted profile pics from medial library
+- comment threads
+- move create post to header

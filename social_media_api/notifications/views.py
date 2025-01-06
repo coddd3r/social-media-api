@@ -13,7 +13,6 @@ from .models import Notification
 @login_required
 def notification_view(request):
     notifications = Notification.objects.filter(recipient=request.user)
-    print("IN NOTIFICATIONS VIEW, recipient?", notifications[0].recipient)
     return render(request, 'notifications/notifications.html', {'notifications': notifications})
 
 
