@@ -49,8 +49,11 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
     'crispy_forms',
+    'crispy_bootstrap4',
     'taggit',
+    'django_filters',
 
     # owned apps
     'accounts',
@@ -71,7 +74,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
+}
 ROOT_URLCONF = 'social_media_api.urls'
+
+# users will need to retype their passwords with an re_password field
+# DJOSER = {
+#    'USER_CREATE_PASSWORD_RETYPE¶': True,
+#    'SET_PASSWORD_RETYPE': True,
+# }
 
 TEMPLATES = [
     {

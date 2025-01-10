@@ -53,8 +53,8 @@ Technical Requirements:
         Ensure that the API is accessible, secure, and performs well in the deployed environment.
 
     Pagination and Sorting:
-        Add pagination to the feed of posts for users with large numbers of followed users or a large volume of posts.
-        Provide sorting options such as sorting by Date or Popularity (likes, comments).
+       (DONE) Add pagination to the feed of posts for users with large numbers of followed users or a large volume of posts.
+      Provide sorting options such as sorting by Date or Popularity (likes, comments).
 
 ** TEST IN  VIRTUALENV **
 Stretch Goals (Optional):

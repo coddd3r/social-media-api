@@ -25,12 +25,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # user = CustomUser(**validated_data)
-        # user.set_password(validated_data['password'])
-        # user.save()
         user = get_user_model().objects.create_user(**validated_data)
-        token, created = Token.objects.create(user=user)
-        return {'user': user, 'token': token.key}
+        # token, created = Token.objects.create(user=user)
+        # return {'user': user, 'token': token.key}
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
     def get_followers(self, obj):
         followers_queryset = obj.followers.all()
@@ -41,10 +41,23 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return BaseUserSmallSerializer(followers_queryset, many=True).data
 
 
-class LoginSerializer(serializers.Serializer):
-    # username = serializers.CharField(max_length=255)
+class LogoutSerializer(serializers.Serializer):
     username = serializers.CharField()
-    password = serializers.CharField(max_length=255, write_only=True)
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        return CustomUser.objects.filter(name=username).count() == 1
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(
+        label=("password"),
+        style={'input_type': 'password'},
+        trim_whitespace=False,
+        max_length=50,
+        write_only=True
+    )
 
     def validate(self, attrs):
         username = attrs.get('username')

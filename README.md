@@ -15,9 +15,12 @@ Authentication:
     Views use django auth mixins e.g LoginRequiredMixin to ensure a user is logged in for Creating, Updating and Deleting operations.
     To test, create a user at "accounts/register/" with username, email, password1,password2 and login at "accounts/login/" with username and password.
     Try creating an post at "posts/create/" with a title, description, price(2 decimal places) and tag(single word) field.
-
-Users can request and auth token from "/api-token-auth/", for example:
-
+    
+    USER/UI auth: for a user-friendly auth experience users may load into login/, logout/, register/ endpoints 
+    api authentication is handled via <a href="https://djoser.readthedocs.io/en/latest/introduction.html" target="_blank">djoser</a>
+    
+    Users can request an auth token from "/api", for login 
+    It is recommended to read the djoser site instructions; all endpoints and settings remain at default. 
     endpoint: api-token-auth/ method: POST
     Request:
 

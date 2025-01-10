@@ -1,19 +1,21 @@
 from rest_framework import serializers
 
-# from taggit_serializer.serializers import (
-#    TagListSerializerField, TaggitSerializer)
 from .models import Post, Comment, Like
 from accounts.serializers import CustomUserSerializer, BaseUserSmallSerializer  # type: ignore
+from taggit.serializers import (TagListSerializerField,
+                                TaggitSerializer)
+
+# use methods for likes and taggit's searlizer for tags
 
 
 class PostSerializer(serializers.ModelSerializer):
     author = BaseUserSmallSerializer(read_only=True)
     likes_count = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
-    # tags = TagListSerializerField()
+    tags = TagListSerializerField()
 
-    tags = serializers.ListField(child=serializers.CharField(), required=False)
-    tags = serializers.SerializerMethodField()
+    # tags = serializers.ListField(child=serializers.CharField(), required=False)
+    # tags = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -23,24 +25,19 @@ class PostSerializer(serializers.ModelSerializer):
     def get_likes_count(self, obj):
         return obj.likes.count()
 
-    def get_tags(self, obj):
-        return obj.tags.all()
-
-    # return only user id for post likes since we already know the post
+        # return only user id for post likes since we already know the post
     def get_likes(self, obj):
         return [post.id for post in obj.likes.all()]
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    # nested serializer for the related BlogPost
+    # nested serializer for the related Post
     post = PostSerializer(read_only=True)
     author = CustomUserSerializer(read_only=True)
 
     class Meta:
         model = Comment
-        fields = [
-            'id', 'author', 'content',
-                  'created_at', 'updated_at', 'post']
+        fields = '__all__'
 
 
 class LikeSerializer(serializers.ModelSerializer):
@@ -53,6 +50,7 @@ class LikeSerializer(serializers.ModelSerializer):
         post = validated_data['post']
 
         existing_instance = Like.objects.filter(post=post, user=user).first()
+        # if post already liked
         if existing_instance:
-            return existing_instance  # return the existing instance
+            return existing_instance
         return super().create(validated_data)
