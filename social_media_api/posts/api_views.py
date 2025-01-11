@@ -5,8 +5,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
-from .models import Post
-from .serializers import PostSerializer, PostUpdateSerializer
+from .models import Post, Like
+from .serializers import LikeSerializer, PostSerializer, PostUpdateSerializer
 
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -109,7 +109,6 @@ class PostUpdate(generics.UpdateAPIView):
             """user and post author have to be the same"""
             if self.request.user == self.get_object().author:
                 serializer.save()
-
             else:
                 raise ValidationError(
                     'You are not authorized to delete this post')
@@ -133,11 +132,37 @@ class PostDelete(generics.DestroyAPIView):
             self.perform_destroy(instance)
         else:
             return Response("You are not authorized to delete this post", status=status.HTTP_403_FORBIDDEN)
-
         return Response("Post deleted successfully", status=status.HTTP_204_NO_CONTENT)
 
     def get_object(self):
         pk = self.kwargs['pk']
         return generics.get_object_or_404(Post, id=pk)
 
+
+"""like and unlike posts"""
+
+
+class LikeUnlikeView(generics.CreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        post_id = self.kwargs['pk']
+        post = Post.objects.get(id=post_id)
+        # if already liked then unlike
+        if Like.objects.filter(user=user, post=post).exists():
+            Like.objects.filter(user=user, post=post).delete()
+        else:
+            serializer.save(user=user, post=post)
+
+
+class PostListByTag(generics.ListAPIView):
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        tag_name = self.kwargs['tag']
+        return Post.objects.filter(tags__name__in=[tag_name])
 #

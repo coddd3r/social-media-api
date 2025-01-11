@@ -55,7 +55,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
-        fields = '__all__'
+        fields = ['created_at']
 
     def create(self, validated_data):
         user = validated_data['user']

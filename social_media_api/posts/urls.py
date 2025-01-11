@@ -16,7 +16,6 @@ urlpatterns = [
          post_search, name='search_post'),
     path('posts/<int:pk>/like/', like_post, name='like_post'),
     path('posts/<int:pk>/unlike/', unlike_post, name='unlike_post'),
-    path('posts/<int:pk>/unlike/', unlike_post, name='unlike_post'),
     # path('post/tag/<str:tag>/', TaggedPostListView.as_view(), name='tag_posts'),
     path('posts/tag/<str:tag>/', posts_tagged_by, name='tag_posts'),
     path('posts/<int:pk>/comments/new/',
@@ -48,4 +47,10 @@ urlpatterns = [
          api_views.PostUpdate.as_view(), name='api_update_post'),
     path('api/posts/<int:pk>/delete/',
          api_views.PostDelete.as_view(), name='api_delete_post'),
+    path('api/posts/<int:pk>/like/',
+         api_views.LikeUnlikeView.as_view(), name='api_like_post'),
+    path('api/posts/<int:pk>/unlike/',
+         api_views.LikeUnlikeView.as_view(), name='api_unlike_post'),
+    path('api/posts/tag/<str:tag>/',
+         api_views.PostListByTag.as_view(), name='api_tag_posts'),
 ]
