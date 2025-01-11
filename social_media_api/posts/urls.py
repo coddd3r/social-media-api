@@ -41,4 +41,11 @@ urlpatterns = [
          name='api_post_search'),
     path('api/posts/range_search/',
          api_views.PostRangeView.as_view(), name='api_range_search'),
+    path('api/posts/new/', api_views.PostCreate.as_view(), name='api_create_post'),
+    path('api/posts/<int:pk>/', api_views.PostDetail.as_view(),
+         name='api_post_detail'),
+    path('api/posts/<int:pk>/update/',
+         api_views.PostUpdate.as_view(), name='api_update_post'),
+    path('api/posts/<int:pk>/delete/',
+         api_views.PostDelete.as_view(), name='api_delete_post'),
 ]

@@ -17,8 +17,9 @@ urlpatterns = [
     path('follow/<int:user_id>/', follow_user, name='follow_user'),
     path('unfollow/<int:user_id>/', unfollow_user, name='unfollow_user'),
     path('followers<int:user_id>/', get_connections, name='connections'),
-    path('api/auth/', include('djoser.urls')),
-    path('api/auth/', include('djoser.urls.authtoken')),
+    # djoser login
+    # path('api/auth/', include('djoser.urls'))
+    # path('api/auth/', include('djoser.urls.authtoken')),
     # drf provided login, logout views
     # path('api-auth/', include('rest_framework.urls')),
     ##
@@ -32,7 +33,8 @@ urlpatterns = [
     path('api/delete_account/', api_views.ProfileDeleteView.as_view(),
          name='api_delete_account'),
     # path('api_token/', CustomAuthToken.as_view(), name='token'),
-    # path('api_follow/<int:user_id>/', follow_user, name='follow_user'),
-    # path('api_unfollow/<int:user_id>/', unfollow_user, name='unfollow_user'),
+    path('api/follow/<int:user_id>/', api_views.follow_user, name='follow_user'),
+    path('api/unfollow/<int:user_id>/',
+         api_views.unfollow_user, name='unfollow_user'),
     # path('api_followers<int:user_id>/', get_connections, name='connections')
 ]

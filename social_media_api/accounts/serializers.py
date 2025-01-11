@@ -6,6 +6,8 @@ from rest_framework import serializers
 
 from .models import CustomUser, UserProfile
 
+"""minimal user serializer"""
+
 
 class BaseUserSmallSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,21 +15,22 @@ class BaseUserSmallSerializer(serializers.ModelSerializer):
         fields = ['id', 'username']
 
 
+"""comprehensive user serializer"""
+
+
 class CustomUserSerializer(serializers.ModelSerializer):
-    # profile_picture = serializers.ImageField()
     followers = serializers.SerializerMethodField()
     following = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'bio',
+        fields = '__all__'
+        fields = ['id', 'username', 'email',
                   'password', 'followers', 'following']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = get_user_model().objects.create_user(**validated_data)
-        # token, created = Token.objects.create(user=user)
-        # return {'user': user, 'token': token.key}
         user.set_password(validated_data['password'])
         user.save()
         return user
@@ -63,6 +66,7 @@ class LoginSerializer(serializers.Serializer):
         username = attrs.get('username')
         password = attrs.get('password')
         user = authenticate(username=username, password=password)
+        # add user info to the serializer attrs
         if user:
             attrs['user'] = user
             return attrs

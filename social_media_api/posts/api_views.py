@@ -2,10 +2,11 @@ from django_filters.rest_framework.filters import DateFilter
 from django_filters.rest_framework.filterset import FilterSet
 
 from rest_framework.authentication import TokenAuthentication
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from .models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, PostUpdateSerializer
 
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -38,11 +39,6 @@ class PostFeedAPI(generics.ListAPIView,):
         return posts
 
 
-class PostDetail(generics.RetrieveAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-
 '''search for posts by keyword in content or title'''
 
 
@@ -53,7 +49,7 @@ class PostSearchView(generics.ListAPIView):
     search_fields = ['title', 'content']
 
 
-'''custom filter for posts within a certin timerange'''
+'''custom filter for posts within a certain timerange'''
 
 
 class PostDateFilter(FilterSet):
@@ -75,18 +71,73 @@ class PostRangeView(generics.ListAPIView):
     filterset_class = PostDateFilter
 
 
-'''modify posts by owners users'''
+'''create post and add request user as the author'''
 
 
-class UpdatePostView(generics.UpdateAPIView):
+class PostCreate(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
-    def partial_update(self, request, *args, **kwargs):
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            # Add the author to the post before saving
+            serializer.validated_data['author'] = self.request.user
+            serializer.save()
+
+
+'''view post details'''
+
+
+class PostDetail(generics.RetrieveAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+
+'''modify posts by owners users'''
+
+
+class PostUpdate(generics.UpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            """user and post author have to be the same"""
+            if self.request.user == self.get_object().author:
+                serializer.save()
+
+            else:
+                raise ValidationError(
+                    'You are not authorized to delete this post')
+
+    def get_object(self):
+        pk = self.kwargs['pk']
+        return generics.get_object_or_404(Post, id=pk)
+
+
+"""delete posts"""
+
+
+class PostDelete(generics.DestroyAPIView):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(
-            instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+        """user and post author have to be the same"""
+        if self.request.user == instance.author:
+            self.perform_destroy(instance)
+        else:
+            return Response("You are not authorized to delete this post", status=status.HTTP_403_FORBIDDEN)
+
+        return Response("Post deleted successfully", status=status.HTTP_204_NO_CONTENT)
+
+    def get_object(self):
+        pk = self.kwargs['pk']
+        return generics.get_object_or_404(Post, id=pk)
+
+#

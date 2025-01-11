@@ -7,9 +7,6 @@ from django.dispatch import receiver
 
 
 class CustomUser(AbstractUser):
-    # bio = models.TextField(max_length=200)
-    bio = models.TextField()
-    # profile_picture = models.ImageField()
     followers = models.ManyToManyField(
         'self', symmetrical=False, related_name='follower_users')
     following = models.ManyToManyField(
@@ -36,24 +33,6 @@ class UserProfile(models.Model):
 
     def get_model_type(self):
         return self.__class__.__name__
-
-    # resize all images to a standard size
-   # def save(self, *args, **kwargs):
-   #     if self.profile_picture:
-   #         print("\n\n in model save pic:", self.profile_picture)
-   #         from PIL import Image
-   #         import io
-   #         from django.core.files.base import ContentFile
-
-   #         img = Image.open(self.profile_picture)
-   #         if img.width != 200 or img.height != 200:
-   #             output = io.BytesIO()
-   #             img.resize((200, 200), Image.Resampling.LANCZOS).save(
-   #                 output, format='png', quality=95)
-   #             output.seek(0)
-   #             self.profile_picture.save(
-   #                 self.profile_picture.name, ContentFile(output.read()), save=False)
-   #     super().save(*args, **kwargs)
 
 
 @receiver(post_save, sender=CustomUser)

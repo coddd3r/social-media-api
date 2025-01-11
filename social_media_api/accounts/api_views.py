@@ -2,14 +2,17 @@ from django.contrib.auth import login, logout
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from accounts.models import UserProfile
-from accounts.views import CustomAuthToken
 from .serializers import CustomUserSerializer, LoginSerializer, LogoutSerializer, UserProfileSerializer
+
+from accounts.models import CustomUser
+from notifications.models import Notification
 
 
 class RegisterView(generics.CreateAPIView):
@@ -48,7 +51,8 @@ class LogoutAPIView(generics.CreateAPIView):
             return Response({"success": "Successfully logged out."}, status=status.HTTP_200_OK)
         return Response("user not logged in")
 
-# allow anyone ot view a user's profile
+
+""" allow anyone ot view a user's profile """
 
 
 class ProfileRetrieveAPIView(generics.RetrieveAPIView):
@@ -99,6 +103,8 @@ class ProfileDeleteView(generics.DestroyAPIView):
     def get_object(self):
         return self.request.user.profile
 
+    """ensure to to delete both user and profile when a profile is deleted"""
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         user = instance.user
@@ -106,13 +112,30 @@ class ProfileDeleteView(generics.DestroyAPIView):
         user.delete()
         return Response({"message": "Profile and corresponding user deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
-#    def update(self, request, *args, **kwargs):
-#        instance = self.get_object()
-#        user = instance.user
-#        instance.delete()
-#        user.delete()
-#        return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated, ))
+def follow_user(request, user_id):
+    user_to_follow = generics.get_object_or_404(CustomUser, id=user_id)
+    # if not following already
+    if not request.user.following.filter(id=user_id).exists():
+        request.user.following.add(user_to_follow)
+        Notification.objects.create(
+            recipient=user_to_follow, target=request.user, actor=request.user, verb="Followed you")
+
+        user_to_follow.followers.add(request.user)
+    return Response({'message': f"you are now following {user_to_follow.username}"}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated, ))
+def unfollow_user(request, user_id):
+    user_to_unfollow = generics.get_object_or_404(CustomUser, id=user_id)
+    request.user.following.remove(user_to_unfollow)
+    user_to_unfollow.followers.remove(request.user)
+    return Response({'message': f"you have unfollowed {user_to_unfollow.username}"}, status=status.HTTP_200_OK)
+
+
 #
-#    def get_object(self):
-#        # Retrieve the profile associated with the authenticated user.
-#        return self.request.user.profile

@@ -14,20 +14,32 @@ class PostSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
     tags = TagListSerializerField()
 
-    # tags = serializers.ListField(child=serializers.CharField(), required=False)
-    # tags = serializers.SerializerMethodField()
-
     class Meta:
         model = Post
         fields = '__all__'
         extra_fields = ['likes_count']
 
+        read_only_fields = ['author']
+
     def get_likes_count(self, obj):
         return obj.likes.count()
 
-        # return only user id for post likes since we already know the post
+    ''' return only user id for post likes since we already know the post '''
+
     def get_likes(self, obj):
         return [post.id for post in obj.likes.all()]
+
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    tags = TagListSerializerField()
+
+    class Meta:
+        model = Post
+        # Only these fields can be updated
+        fields = ['title', 'content', 'tags']
+        extra_kwargs = {
+            'id': {'read_only': True},
+        }
 
 
 class CommentSerializer(serializers.ModelSerializer):
