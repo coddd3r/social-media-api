@@ -25,15 +25,11 @@ class UserProfile(models.Model):
     user = models.OneToOneField(
         CustomUser, on_delete=models.CASCADE, related_name='profile')
     # TODO!: consider using a handle vs username
-    first_name = models.CharField(max_length=50, default="no_first_name")
-    last_name = models.CharField(max_length=50, default="no_last_name")
+    # first_name = models.CharField(max_length=50, default="no_first_name")
+    # last_name = models.CharField(max_length=50, default="no_last_name")
     profile_picture = models.ImageField(
-        default='default.jpg', upload_to='profile_pics', width_field='image_width', height_field='image_height')
+        default='default.jpg', upload_to='profile_pics')
     bio = models.TextField(max_length=300, null=True)
-    image_width = models.PositiveIntegerField(
-        blank=True, null=True, default=60)
-    image_height = models.PositiveIntegerField(
-        blank=True, null=True, default=60)
 
     def __str__(self):
         return f'{self.user.username} Profile'

@@ -74,4 +74,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'profile_picture']
+        fields = '__all__'
+        read_only_fields = ['id', 'user']
