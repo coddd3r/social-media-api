@@ -36,8 +36,8 @@
         </p>
     {% endif %}
     <br>
-    <strong>TAGS:</strong>{{ post.tags }}
-    {% for tag in post.tags.all %}
+    <strong>TAGS:</strong>
+    {% for tag in post.tags%}
         <li>
             <a href="{% url 'tag_posts' tag %}">{{ tag }}</a>
         </li>
