@@ -10,20 +10,13 @@ Install and run:
     Run python manage.py migrate to apply database migrations.
     Run python manage.py runserver
 
+Hosting link:
+    - The site is hosted on pythonanywhere: [www.ddinho.pythonanywhere.com]
+
 Authentication:
+    - UI Authentication is done at login/ endpoint on the site page
+    - API auth is done at api/login using Token Authentication
 
-    Views use django auth mixins e.g LoginRequiredMixin to ensure a user is logged in for Creating, Updating and Deleting operations.
-    To test, create a user at "accounts/register/" with username, email, password1,password2 and login at "accounts/login/" with username and password.
-    Try creating an post at "posts/create/" with a title, description, price(2 decimal places) and tag(single word) field.
-    
-    USER/UI auth: for a user-friendly auth experience users may load into login/, logout/, register/ endpoints 
-    api authentication is handled via <a href="https://djoser.readthedocs.io/en/latest/introduction.html" target="_blank">djoser</a>
-    
-    Users can request an auth token from "/api", for login 
-    It is recommended to read the djoser site instructions; all endpoints and settings remain at default. 
-    endpoint: api-token-auth/ method: POST
-    Request:
-
-{ "username": "johnDoe", "password": "password123" }
-Response:
-{ "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" }
+        example: { "username": "johnDoe", "password": "password123" }
+        Response:
+        { "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" }
