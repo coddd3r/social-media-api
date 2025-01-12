@@ -1,3 +1,9 @@
+"""
+Views for API ednpoints
+All return json responses
+"""
+
+
 from django.contrib.auth import login, logout
 from rest_framework import generics
 from rest_framework.response import Response
@@ -14,7 +20,7 @@ from .serializers import CustomUserSerializer, LoginSerializer, LogoutSerializer
 from accounts.models import CustomUser
 from notifications.models import Notification
 
-
+'''registration'''
 class RegisterView(generics.CreateAPIView):
     serializer_class = CustomUserSerializer
 
@@ -25,7 +31,7 @@ class RegisterView(generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+'''login'''
 class LoginAPIView(generics.CreateAPIView):
     serializer_class = LoginSerializer
 
@@ -36,6 +42,7 @@ class LoginAPIView(generics.CreateAPIView):
         if user:
             login(request, user)
         token, created = Token.objects.get_or_create(user=user)
+        '''return a token with login'''
         return Response({'token': token.key}, status=status.HTTP_200_OK)
 
 
@@ -45,6 +52,7 @@ class LogoutAPIView(generics.CreateAPIView):
     def post(self, request):
         print("user authenticated?", request.user.is_authenticated)
         print(request.user.auth_token)
+        '''remove token on logout'''
         if request.user.is_authenticated:
             request.user.auth_token.delete()
             logout(request)
@@ -86,7 +94,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class ProfileUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self):
@@ -121,9 +129,9 @@ def follow_user(request, user_id):
     # if not following already
     if not request.user.following.filter(id=user_id).exists():
         request.user.following.add(user_to_follow)
+        '''create a notification on follow'''
         Notification.objects.create(
             recipient=user_to_follow, target=request.user, actor=request.user, verb="Followed you")
-
         user_to_follow.followers.add(request.user)
     return Response({'message': f"you are now following {user_to_follow.username}"}, status=status.HTTP_200_OK)
 
