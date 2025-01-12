@@ -29,10 +29,10 @@ urlpatterns = [
          api_views.ProfileUpdateAPIView.as_view(), name='api_profile_update'),
     path('api/delete_account/', api_views.ProfileDeleteView.as_view(),
          name='api_delete_account'),
-    # path('api_token/', CustomAuthToken.as_view(), name='token'),
-    path('api/follow/<int:user_id>/', api_views.follow_user, name='follow_user'),
+    path('api_token/', CustomAuthToken.as_view(), name='token'),
+    path('api/follow/<int:user_id>/', api_views.follow_user, name='api_follow_user'),
     path('api/unfollow/<int:user_id>/',
-         api_views.unfollow_user, name='unfollow_user'),
+        api_views.unfollow_user, name='api_unfollow_user'),
     # path('api_followers<int:user_id>/', get_connections, name='connections')
     # djoser login
     # path('api/auth/', include('djoser.urls'))
