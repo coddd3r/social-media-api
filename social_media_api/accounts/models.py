@@ -5,6 +5,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 # Create your models here.
 
+'''modify user model to hold followers and those they follow'''
+
 
 class CustomUser(AbstractUser):
     followers = models.ManyToManyField(
@@ -33,6 +35,9 @@ class UserProfile(models.Model):
 
     def get_model_type(self):
         return self.__class__.__name__
+
+
+'''create user profile with a signal on first user registration'''
 
 
 @receiver(post_save, sender=CustomUser)

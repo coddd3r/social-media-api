@@ -26,7 +26,7 @@ from .forms import PostForm
 from .serializers import PostSerializer, CommentSerializer
 from .models import Post, Comment, Like
 
-# show all posts by all users in chronoloigcal order with latest first
+'''show all posts by all users in chronological order with latest first'''
 
 
 class PostListView(ListView):
@@ -41,6 +41,9 @@ class PostListView(ListView):
         return posts
 
 
+'''show the recent posts by all users the current user follows'''
+
+
 class PostFeedView(ListView):
     model = Post
     paginate_by = 10  # Set the number of items per page
@@ -50,6 +53,7 @@ class PostFeedView(ListView):
     def get_queryset(self):
         request = self.request
         following_users = request.user.following.all()
+        # order posts with most recent first
         posts = Post.objects.filter(
             author__in=following_users).order_by('-created_at')
         posts = PostSerializer(posts, many=True).data
@@ -63,7 +67,6 @@ class PostCreateView(CreateView, LoginRequiredMixin):
 
     def form_valid(self, form):
         author = CustomUser.objects.get(id=self.request.user.pk)
-        # author = CustomUser.objects.get(id=self.request.user.id)
         form.instance.author = author
         return super().form_valid(form)
 
@@ -101,6 +104,7 @@ class PostDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
         if request.method == 'POST':
             # Delete the object if confirmed
             post = Post.objects.get(id=pk)
+            # make sure requester is the author of the post
             if post.author == request.user:
                 post.delete()
                 return redirect(self.success_url)
@@ -108,6 +112,9 @@ class PostDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
                 raise PermissionDenied()
         else:
             return render(request, self.template_name, {'object': PostSerializer(self.get_object())})
+
+
+'''search for posts with keyword in either title or content'''
 
 
 def post_search(request):
@@ -121,6 +128,9 @@ def post_search(request):
         return render(request, 'posts/search_results.html', {'results': results, 'search_prompt': prompt})
     else:
         raise PermissionDenied()
+
+
+'''search for posts that were created between start and end date provided'''
 
 
 def range_search_view(request):
@@ -149,7 +159,6 @@ def like_post(request, pk):
             user=request.user, post=post)
         if created:
             post.likes.add(request.user)
-        print("like created", like)
         return redirect('post_detail', pk=pk)
     else:
         raise PermissionDenied
@@ -184,12 +193,13 @@ def posts_tagged_by(request, tag):
 
 
 ##
-# COMMENTS
+# COMMENTS SECTION
 ##
 
 
 class CommentPagination(PageNumberPagination):
-    page_size = 20  # Adjust the page size as needed
+    # max comments per page
+    page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 100
 
@@ -213,9 +223,10 @@ class CommentCreateView(CreateView, LoginRequiredMixin, UserPassesTestMixin):
     model = Comment
     form_class = CommentForm
 
+    '''add author and post to comment'''
+
     def form_valid(self, form):
         author = get_object_or_404(CustomUser, pk=self.request.user.pk)
-        # author = CustomUser.objects.get(id=self.request.user.id)
         form.instance.author = author
         post = get_object_or_404(Post, pk=self.kwargs['pk'])
         form.instance.post = post
@@ -236,22 +247,9 @@ class CommentUpdateView(UpdateView, LoginRequiredMixin, UserPassesTestMixin):
 
 class CommentDetailView(DetailView):
     def get(self, request):
-        # Handle GET request
         comment = Comment.objects.get(id=request.data['id'])
         serializer = CommentSerializer(comment)
         return Response(serializer.data)
-
-
-class CommentDeleteViewAPI(generics.DestroyAPIView, LoginRequiredMixin, UserPassesTestMixin):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-
-    def delete(self, request, pk):
-        comment = self.get_object()
-        if request.user == comment.user:
-            comment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
@@ -263,6 +261,7 @@ class CommentDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
             # Delete the object if confirmed
             comment = get_object_or_404(Comment, pk=pk)
             successurl = self.get_success_url()
+            # ensure comment author is same as user calling delete
             if comment.author == request.user:
                 comment.delete()
                 return redirect(successurl)

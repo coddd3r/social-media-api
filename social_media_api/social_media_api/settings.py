@@ -23,20 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ft^1-gz-++4#wg0^pou$tdh=+la2_ko*=&-b-=s@q$zkyj!_!#'
 
 
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-# SECURE_BROWSER_XSS_FILTER = True
-# SECURE_CONTENT_TYPE_NOSNIFF = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# SECURE_SSL_REDIRECT = True
-# X_FRAME_OPTIONS = 'DENY'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+X_FRAME_OPTIONS = 'DENY'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
+# DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', 'ddinho.pythonanywhere.com']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -83,11 +84,6 @@ REST_FRAMEWORK = {
 }
 ROOT_URLCONF = 'social_media_api.urls'
 
-# users will need to retype their passwords with an re_password field
-# DJOSER = {
-#    'USER_CREATE_PASSWORD_RETYPE¶': True,
-#    'SET_PASSWORD_RETYPE': True,
-# }
 
 TEMPLATES = [
     {
@@ -121,12 +117,7 @@ DATABASES = {
         },
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+
 
 # DATABASES = {
 #     'default': {
@@ -178,16 +169,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"

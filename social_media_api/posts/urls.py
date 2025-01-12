@@ -3,7 +3,7 @@ from django.urls import path
 from .views import *
 from . import api_views
 urlpatterns = [
-    # path('posts/', PostListView.as_view({'get': 'list'}), name='posts'),
+    # ui/template endpoints
     path('', PostListView.as_view(), name='home'),
     path('posts/', PostListView.as_view(), name='posts'),
     path('feed/', PostFeedView.as_view(), name='feed'),
@@ -16,7 +16,6 @@ urlpatterns = [
          post_search, name='search_post'),
     path('posts/<int:pk>/like/', like_post, name='like_post'),
     path('posts/<int:pk>/unlike/', unlike_post, name='unlike_post'),
-    # path('post/tag/<str:tag>/', TaggedPostListView.as_view(), name='tag_posts'),
     path('posts/tag/<str:tag>/', posts_tagged_by, name='tag_posts'),
     path('posts/<int:pk>/comments/new/',
          CommentCreateView.as_view(), name='create_comment'),
@@ -28,10 +27,8 @@ urlpatterns = [
          CommentDeleteView.as_view(), name='comment_delete'),
     path('comment/<int:pk>/',
          CommentDetailView.as_view(), name='comment_detail'),
-    #     path('tags/<slug:tag_slug>/',
-    #          PostByTagListView.as_view(), name='tag_posts'),
 
-
+    # api endpoints
     path('api/posts/', api_views.PostListView.as_view(), name='api_posts'),
     path('api/posts/feed/', api_views.PostFeedAPI.as_view(), name='api_feed'),
     path('api/posts/<int:pk>/', api_views.PostDetail.as_view(),

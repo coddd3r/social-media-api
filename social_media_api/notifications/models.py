@@ -9,6 +9,8 @@ from django.contrib.contenttypes.models import ContentType
 
 User = settings.AUTH_USER_MODEL
 
+'''notification model with user as actor and generic target which can b a post, comment, like'''
+
 
 class Notification(models.Model):
     recipient = models.ForeignKey(
@@ -27,6 +29,9 @@ class Notification(models.Model):
         return self.__class__.__name__
 
 
+'''signal on creation of a like creates a notification'''
+
+
 @receiver(post_save, sender=Like)
 def like_notification(sender, instance, created, **kwargs):
     if created:
@@ -36,6 +41,9 @@ def like_notification(sender, instance, created, **kwargs):
         recipient = post.author
         Notification.objects.create(
             recipient=recipient, actor=actor,  target=post, verb='liked your post')
+
+
+'''signal on creation of a comment creates a notification'''
 
 
 @receiver(post_save, sender=Comment)

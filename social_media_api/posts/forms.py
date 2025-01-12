@@ -9,6 +9,8 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ['title', 'content', 'tags']
 
+'''enable date selection widgets fora more user friendly date range selection'''
+
 
 class DateForm(forms.Form):
     start_date = forms.DateField(widget=SelectDateWidget)

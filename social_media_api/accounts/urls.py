@@ -6,6 +6,7 @@ LoginView.template_name = 'accounts/login.html'
 LogoutView.template_name = 'accounts/logout.html'
 
 urlpatterns = [
+     #ui/template endpoints
     path('register/', register, name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
@@ -17,12 +18,8 @@ urlpatterns = [
     path('follow/<int:user_id>/', follow_user, name='follow_user'),
     path('unfollow/<int:user_id>/', unfollow_user, name='unfollow_user'),
     path('followers<int:user_id>/', get_connections, name='connections'),
-    # djoser login
-    # path('api/auth/', include('djoser.urls'))
-    # path('api/auth/', include('djoser.urls.authtoken')),
-    # drf provided login, logout views
-    # path('api-auth/', include('rest_framework.urls')),
-    ##
+   
+     #api endpoints
     path('api/register/', api_views.RegisterView.as_view(), name='api_register'),
     path('api/login/', api_views.LoginAPIView.as_view(), name='api_login'),
     path('api/logout/', api_views.LogoutAPIView.as_view(), name='api_logout'),
@@ -37,4 +34,10 @@ urlpatterns = [
     path('api/unfollow/<int:user_id>/',
          api_views.unfollow_user, name='unfollow_user'),
     # path('api_followers<int:user_id>/', get_connections, name='connections')
+    # djoser login
+    # path('api/auth/', include('djoser.urls'))
+    # path('api/auth/', include('djoser.urls.authtoken')),
+    # drf provided login, log`x`out views
+    # path('api-auth/', include('rest_framework.urls')),
+    ##
 ]

@@ -159,6 +159,9 @@ class LikeUnlikeView(generics.CreateAPIView):
             serializer.save(user=user, post=post)
 
 
+"""return all posts that are tagged by the given word"""
+
+
 class PostListByTag(generics.ListAPIView):
     serializer_class = PostSerializer
 

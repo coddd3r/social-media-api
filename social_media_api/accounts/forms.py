@@ -22,6 +22,9 @@ class UpdateUserForm(forms.ModelForm):
         fields = ['username', 'email']
 
 
+'''ensure all images are at most 5kb in size'''
+
+
 def validate_image_size(value):
     filesize = value.size
     megabyte_limit = 5.0
@@ -32,7 +35,7 @@ def validate_image_size(value):
 class UpdateProfileForm(forms.ModelForm):
     profile_picture = forms.ImageField(validators=[validate_image_size, FileExtensionValidator(
         allowed_extensions=['jpg', 'jpeg', 'png'])])
-
+    '''give the user the option to remove the profile picture'''
     remove_picture = forms.BooleanField(
         required=False, label='Remove Profile Picture')
 
@@ -42,6 +45,7 @@ class UpdateProfileForm(forms.ModelForm):
 
     def save(self, commit=True):
         profile = super().save(commit=False)
+        #if user chooses to remove their profile pic, set to default
         if self.cleaned_data['remove_picture']:
             if profile.profile_picture == 'default.jpg':
                 pass

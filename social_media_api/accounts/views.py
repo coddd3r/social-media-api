@@ -63,6 +63,7 @@ def profile_view(request, user_id):
 
 @login_required
 def profile_update_view(request, user_id):
+    '''ensure the editing user owns the profile'''
     if request.user.id != user_id:
         return HttpResponse(status=403, content='Forbidden')
 
@@ -75,11 +76,6 @@ def profile_update_view(request, user_id):
             request.POST, request.FILES, instance=profile_instance)
 
         if user_form.is_valid() and profile_form.is_valid():
-            # profile = profile_form.save()
-            # if profile_form.cleaned_data['remove_picture']:
-            # profile.profile_picture.delete(save=False)
-            #    profile.profile_picture = 'default.jpg'
-            # profile.save()
             profile_form.save()
             user_form.save()
             return redirect(reverse('profile', kwargs={'user_id': user_id}))
@@ -95,9 +91,9 @@ def follow_user(request, user_id):
     user_to_follow = get_object_or_404(CustomUser, id=user_id)
     if not request.user.following.filter(id=user_id).exists():
         request.user.following.add(user_to_follow)
+        # create notification on follow
         Notification.objects.create(
             recipient=user_to_follow, target=request.user, actor=request.user, verb="Followed you")
-
         user_to_follow.followers.add(request.user)
     return redirect(reverse_lazy('profile', kwargs={'user_id': user_id}))
 
@@ -109,21 +105,20 @@ def unfollow_user(request, user_id):
     user_to_unfollow.followers.remove(request.user)
     return redirect(reverse_lazy('profile', kwargs={'user_id': user_id}))
 
-# get a user's followers and who they follow
+
+''' get a user's followers and who they follow '''
 
 
 def get_connections(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
-  #  followers = BaseUserSmallSerializer(user.followers.all(
-  #  ), many=True).data
-  #  following = BaseUserSmallSerializer(user.following.all(), many=True).data
-
-#    context = {"followers": followers, "following": following}
     context = {}
     context['followers'] = user.followers.all()
     context['following'] = user.following.all()
 
     return render(request, 'accounts/connections_view.html', context)
+
+
+'''enable deleting account'''
 
 
 @login_required
@@ -134,6 +129,9 @@ def delete_account(request):
         return redirect('home')
     else:
         return render(request, 'accounts/delete_account.html')
+
+
+'''users can ask for an auth token'''
 
 
 class CustomAuthToken(ObtainAuthToken):

@@ -30,7 +30,6 @@ class Comment(models.Model):
     content = models.TextField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    likes = models.ManyToManyField(CustomUser, related_name='comment_likes')
 
     class Meta:
         ordering = ['created_at']
@@ -45,6 +44,7 @@ class Like(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    '''ensure a user can like a post only once'''
     class Meta:
         unique_together = ['post', 'user']
 

@@ -35,6 +35,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    """use the minimal user serializer to send only id and username of followers/following"""
+
     def get_followers(self, obj):
         followers_queryset = obj.followers.all()
         return BaseUserSmallSerializer(followers_queryset, many=True).data

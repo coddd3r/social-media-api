@@ -5,7 +5,7 @@ from accounts.serializers import CustomUserSerializer, BaseUserSmallSerializer  
 from taggit.serializers import (TagListSerializerField,
                                 TaggitSerializer)
 
-# use methods for likes and taggit's searlizer for tags
+''' use methods for likes and taggit's serializer for tags'''
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -28,6 +28,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_likes(self, obj):
         return [post.id for post in obj.likes.all()]
+
+
+'''serializer specifically for editing posts'''
 
 
 class PostUpdateSerializer(serializers.ModelSerializer):
@@ -56,6 +59,8 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ['created_at']
+
+    '''add user and post to like before saving'''
 
     def create(self, validated_data):
         user = validated_data['user']

@@ -1,5 +1,5 @@
 """
-Views for API ednpoints
+Views for API endpoints
 All return json responses
 """
 
@@ -21,6 +21,8 @@ from accounts.models import CustomUser
 from notifications.models import Notification
 
 '''registration'''
+
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = CustomUserSerializer
 
@@ -31,7 +33,10 @@ class RegisterView(generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 '''login'''
+
+
 class LoginAPIView(generics.CreateAPIView):
     serializer_class = LoginSerializer
 

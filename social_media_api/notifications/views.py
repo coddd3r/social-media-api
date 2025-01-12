@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 
 from django.contrib.auth.decorators import login_required
@@ -8,6 +8,8 @@ from django.shortcuts import redirect
 from django.views.generic import DeleteView
 
 from .models import Notification
+
+'''list all notifications with user as recipient of the action'''
 
 
 @login_required
@@ -24,11 +26,7 @@ def mark_as_read(request, notification_id):
     return redirect('notification_view')
 
 
-@login_required()
-def delete_notification(request, pk):
-    notification = get_object_or_404(Notification, id=notification_id)
-    notification.delete()
-    return redirect('notifications')
+'''enable users to delete a notification'''
 
 
 class NotificationDeleteView(DeleteView, LoginRequiredMixin, UserPassesTestMixin):
