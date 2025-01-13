@@ -2,7 +2,7 @@
 {% block content %}
     <h1>Delete Post with id: {{ object.id.value }}</h1>
     <p>
-        Are you sure you want to delete {{ object.title.value }}? by <a href="{% url 'profile' object.author.id %}">{{ object.author }}</a>
+        Are you sure you want to delete {{ object.title.value }}? by <a href="{% url 'profile' object.author.id.value %}">{{ object.author.username.value }}</a>
     </p>
     <p>Last Updated {{ object.updated_at.value }}</p>
     <form method="post">
