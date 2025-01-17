@@ -11,7 +11,7 @@ Install and run:
     Run python manage.py runserver
 
 Hosting link:
-    - The site is hosted on pythonanywhere: [https://.ddinho.pythonanywhere.com]
+    - The site is hosted on pythonanywhere: [https://ddinho.pythonanywhere.com]
 
 Authentication:
     - UI Authentication is done at login/ endpoint on the site page
