@@ -2,7 +2,7 @@ A social media website that allows users to: register accounts, post statuses, l
 
 Install and run:
 
-    Clone the repo: git clone https://github.com/DarioDidi/Capstone-project.git
+    Clone the repo: git clone git@github.com:coddd3r/social-media-api.git
     run a virtual environment: virtualenv -p python3 env
     activate the env: source env/bin/activate
     install from requirements.txt: pip install -r requirements.txt
@@ -11,7 +11,7 @@ Install and run:
     Run python manage.py runserver
 
 Hosting link:
-    - The site is hosted on pythonanywhere: [www.ddinho.pythonanywhere.com]
+    - The site is hosted on pythonanywhere: [https://.ddinho.pythonanywhere.com]
 
 Authentication:
     - UI Authentication is done at login/ endpoint on the site page
